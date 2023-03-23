@@ -102,7 +102,7 @@
   <span class="inline-flex font-semibold mr-2">Account:</span>
   <span class="inline-flex font-semibold">Amount:</span>
 
-	{#each entry.ledger as ([account, amount], index) (`ledger-${index}`)}		
+	{#each entry.ledger as [account, amount], index (`ledger-${index}`)}		
     <div class="">
       <label class="inline-flex items-center border mb-2 mr-2">
         <input bind:value={account} type="text" list="accounts" class="" />
