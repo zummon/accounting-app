@@ -11,13 +11,19 @@
 </script>
 
   <datalist id="refs">
-    <option v-for="(,key) in trans" :value="key" />
+    {#each Object.keys($trans) as value, index (`ref-${index}`)}
+      <option value={value} />
+    {/each}
   </datalist>
   <datalist id="names">
-    <option v-for="value in names" :value="value" />
+    {#each $names as value, index (`name-${index}`)}
+      <option value={value} />
+    {/each}
   </datalist>
   <datalist id="accounts">
-    <option v-for="value in accounts" :value="value" />
+    {#each $accounts as value, index (`account-${index}`)}
+      <option value={value} />
+    {/each}
   </datalist>
 
 <div class="container border rounded-lg mx-auto print:border-0">

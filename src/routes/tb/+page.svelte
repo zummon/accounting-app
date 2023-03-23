@@ -1,4 +1,62 @@
 
+<script>
+
+  let report = () => {
+    let result = {}
+    
+    Object.entries($trans).forEach(([key, {doc, ledger}]) => {
+      const [date, name] = doc
+      if (date <= endDate) {
+        ledger.forEach(([account, amount]) => {
+          const accountType = Number(account.charAt(0))
+
+          if (date < startDate) {
+            if (accountType >= 4) {
+              account = '3 Generated retained earnings'
+            }
+          }
+
+          if (result[account]) {
+            result[account] += amount
+          } else {
+            result[account] = amount
+          }
+        })
+      }
+    })
+
+    // https://stackoverflow.com/questions/5467129/sort-javascript-object-by-key
+    result = Object.keys(result).sort()
+    .reduce(
+      (obj, key) => {
+        let amount = result[key]
+        let credit = 0
+        if (amount < 0) {
+          amount = -amount
+          credit = 1
+        }
+        if (duty === 'pl') {
+          if (accountType >= 4) {
+            obj[key]
+          }
+        } else {
+
+          obj[key] = ['','']
+          obj[key][credit] = amount
+          return obj
+        }
+      },
+      {}
+    )
+
+    // accountType <= 1
+    // accountType >= 2
+    // accountType >= 5
+
+    return result
+  }
+</script>
+
 <div v-if="duty !== ''" class="px-2 pt-2">
   <h1 class="text-xl font-medium mb-2">Trial Balance</h1>
   <label class="inline-flex border items-center mb-2 mr-2">

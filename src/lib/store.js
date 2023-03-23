@@ -5,7 +5,7 @@ export const trans = writable({});
 export const names = derived(trans, ($trans) => {
 	let result = {};
 	for (const ref in $trans) {
-		let [, name] = $trans[ref].doc;
+		let [,name] = $trans[ref].doc;
 		result[name] = true;
 	}
 	return Object.keys(result).sort();
