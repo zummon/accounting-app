@@ -4,7 +4,7 @@
   import { trans, names, accounts } from '../lib/store'
 
 	onMount(async() => {
-		const res = await fetch(`https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme-Tdlv79YzU6aW9wRx694Q0Kd/dev`);
+		const res = await fetch(`https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec`);
 		const json = await res.json();
     $trans = json;
 	});
