@@ -1,5 +1,6 @@
 <script>
   import { trans } from '../lib/store'
+	import { onMount } from 'svelte';
 
   let entry = {}
   let duty = ''
@@ -19,6 +20,9 @@
     entry = {...tran, doc: [ref, ...tran.doc]}
   }
 
+	onMount(async() => {
+    getEntry()
+	});
 </script>
 
 <div class="px-2 pt-2">

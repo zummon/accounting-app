@@ -10,21 +10,21 @@
 	});
 </script>
 
-  <datalist id="refs">
-    {#each Object.keys($trans) as value, index (`ref-${index}`)}
-      <option value={value} />
-    {/each}
-  </datalist>
-  <datalist id="names">
-    {#each $names as value, index (`name-${index}`)}
-      <option value={value} />
-    {/each}
-  </datalist>
-  <datalist id="accounts">
-    {#each $accounts as value, index (`account-${index}`)}
-      <option value={value} />
-    {/each}
-  </datalist>
+<datalist id="refs">
+  {#each Object.keys($trans) as value, index (`ref-${index}`)}
+    <option value={value} />
+  {/each}
+</datalist>
+<datalist id="names">
+  {#each $names as value, index (`name-${index}`)}
+    <option value={value} />
+  {/each}
+</datalist>
+<datalist id="accounts">
+  {#each $accounts as value, index (`account-${index}`)}
+    <option value={value} />
+  {/each}
+</datalist>
 
 <div class="container border rounded-lg mx-auto print:border-0">
   <div class="flex flex-wrap justify-center border-b px-2 pt-2 print:hidden">
