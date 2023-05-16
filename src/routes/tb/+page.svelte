@@ -1,13 +1,17 @@
 
 <script>
+  import { trans } from "../lib/store";
 
-  let report = () => {
+  let startDate = "2020-04-27T00:00";
+	let endDate = new Date().toISOString().slice(0, 16);
+
+  const report = () => {
     let result = {}
     
-    Object.entries($trans).forEach(([key, {doc, ledger}]) => {
+    $trans.forEach(({ ref, { doc, ledger } }) => {
       const [date, name] = doc
       if (date <= endDate) {
-        ledger.forEach(([account, amount]) => {
+        ledger.forEach(({ account, amount }) => {
           const accountType = Number(account.charAt(0))
 
           if (date < startDate) {
@@ -25,7 +29,6 @@
       }
     })
 
-    // https://stackoverflow.com/questions/5467129/sort-javascript-object-by-key
     result = Object.keys(result).sort()
     .reduce(
       (obj, key) => {
@@ -61,11 +64,11 @@
   <h1 class="text-xl font-medium mb-2">Trial Balance</h1>
   <label class="inline-flex border items-center mb-2 mr-2">
     <span class="mr-2">Start Date:</span>
-    <input v-model="startDate" type="date" class="" />
+    <input class="" bind:value={startDate} type="datetime-local" />
   </label>
   <label class="inline-flex border items-center mb-2 mr-2">
     <span class="mr-2">End Date:</span>
-    <input v-model="endDate" type="date" class="" />
+    <input class="" bind:value={endDate} type="datetime-local" />
   </label>
   <table class="table-auto">
     <thead>
@@ -76,17 +79,23 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(value, key) in report" class="">
-        <td class="pt-2 pr-2 border-b">{ key }</td>
-        <td class="pt-2 pr-2 border-b text-right">{ value > 0 ? value : '' }</td>
-        <td class="pt-2 border-b text-right">{ value < 0 ? (-value) : '' }</td>
-      </tr>
+      {#each report as value, index (`item-${index}`)}
+        <tr class="">
+          <td class="pt-2 pr-2 border-b">{ index + 1 }</td>
+          <td class="pt-2 pr-2 border-b text-right">{ value > 0 ? value : '' }</td>
+          <td class="pt-2 border-b text-right">{ value < 0 ? (-value) : '' }</td>
+        </tr>
+      {/each}
     </tbody>
     <tfoot>
       <tr>
         <td class="pt-2 pr-2 font-semibold border-b">Balance</td>
-        <td class="pt-2 pr-2 font-semibold border-b text-right">{ Object.values(report).reduce((accu, value) => (value > 0 ? accu + value : accu), 0) }</td>
-        <td class="pt-2 font-semibold border-b text-right">{ Object.values(report).reduce((accu, value) => (value < 0 ? accu + (-value) : accu), 0) }</td>
+        <td class="pt-2 pr-2 font-semibold border-b text-right">
+          { Object.values(report).reduce((accu, value) => (value > 0 ? accu + value : accu), 0) }
+        </td>
+        <td class="pt-2 font-semibold border-b text-right">
+          { Object.values(report).reduce((accu, value) => (value < 0 ? accu + (-value) : accu), 0) }
+        </td>
       </tr>
     </tfoot>
   </table>

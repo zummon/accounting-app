@@ -1,17 +1,17 @@
 <script>
 	import "../style.css";
-	// import { onMount } from "svelte";
-	import { trans, names, accounts } from "../lib/store";
+	import { onMount } from "svelte";
+	import { trans, names, accounts, refs } from "../lib/store";
 
-	// onMount(async() => {
-	// 	const res = await fetch(`https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec`);
-	// 	const json = await res.json();
-	//   $trans = json;
-	// });
+	export let data
+
+	onMount(async() => {
+	  $trans = data.trans;
+	});
 </script>
 
 <datalist id="refs">
-	{#each Object.keys($trans) as value, index (`ref-${index}`)}
+	{#each $refs as value, index (`ref-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
@@ -46,7 +46,7 @@
 				/>
 			</svg>
 		</button>
-		<a href="/" class="mb-2 mr-2 text-sky-500 hover:text-sky-700">Entry</a>
+		<a href="/" class="mb-2 mr-2 text-sky-500 hover:text-sky-700">Home</a>
 		<a href="/tb" class="mb-2 mr-2 text-sky-500 hover:text-sky-700"
 			>Trial Balance</a
 		>
@@ -80,9 +80,4 @@
 		<slot />
 	</div>
 </div>
-<a
-	href="https://zummon.page/"
-	target="_blank"
-	class="mx-auto mt-2 block w-fit text-sky-500 hover:text-sky-700 print:hidden"
-	>Made by zummon</a
->
+
