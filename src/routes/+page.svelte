@@ -5,13 +5,12 @@
 	let name = []
 	let filterData = []
 
-	const getEntry = () => {
+	const filtering = () => {
 		$trans
 	};
 
 	onMount(async () => {
 
-		// getEntry();
 	});
 </script>
 
@@ -23,11 +22,9 @@
 <div class="px-2 pt-2">
 	<h1 class="mb-2 text-xl font-medium">Entry</h1>
 	<label class="mb-2 mr-2 inline-flex items-center border">
-		<span class="mr-2 font-semibold">Ref:</span>
+		<span class="mr-2 font-semibold">Ref: </span>
 		<input
 			class=""
-			on:input={getEntry}
-			value={entry.doc[0]}
 			type="text"
 			list="refs"
 		/>
@@ -39,7 +36,7 @@
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
-		<span class="mr-2 font-semibold">To/From:</span>
+		<span class="mr-2 font-semibold">Name:</span>
 		<input class="" bind:value={entry.doc[2]} type="text" list="names" />
 	</label>
 
