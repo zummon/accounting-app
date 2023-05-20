@@ -1,19 +1,42 @@
 import { writable, derived } from "svelte/store";
 
-export const trans = writable([]);
+export const allTrans = writable([]);
 
-export const refs = derived(trans, ($trans) => {
-	let result = [];
-	$trans.forEach(({ ref }) => {
-		result.push(ref)
+export const queryTrans = writable({
+	date: { start: '', end: '' },
+	refs: [],
+	names: [],
+	accounts: [],
+})
+
+export const trans = derived([ allTrans, queryTrans ], ([ $allTrans, $queryTrans ]) => {
+	let result = $allTrans.slice()
+	if ($queryTrans.date.end) {
+		result = result.filter(({ doc }) => {
+			return doc.date <= $queryTrans.date.end
+		})
+	}
+	if ($queryTrans.date.start) {
+		result = result.filter(({ doc }) => {
+			return doc.date >= $queryTrans.date.start
+		})
+	}
+	
+
+	return result
+})
+
+export const refs = derived(allTrans, ($allTrans) => {
+	let result = {};
+	$allTrans.forEach(({ ref }) => {
+		result[ref] = true
 	})
-	return result.sort();
+	return Object.keys(result).sort();
 });
 
-// https://stackoverflow.com/questions/5467129/sort-javascript-object-by-key
-export const names = derived(trans, ($trans) => {
+export const names = derived(allTrans, ($allTrans) => {
 	let result = {};
-	$trans.forEach(({ doc }) => {
+	$allTrans.forEach(({ doc }) => {
 		doc.forEach(({ name }) => {
 			result[name] = true
 		})
@@ -21,9 +44,9 @@ export const names = derived(trans, ($trans) => {
 	return Object.keys(result).sort();
 });
 
-export const accounts = derived(trans, ($trans) => {
+export const accounts = derived(allTrans, ($allTrans) => {
 	let result = {};
-	$trans.forEach(({ ledger }) => {
+	$allTrans.forEach(({ ledger }) => {
 		ledger.forEach(({ account }) => {
 			result[account] = true
 		})

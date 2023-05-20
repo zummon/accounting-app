@@ -1,14 +1,15 @@
 <script>
 	import "../style.css";
 	import { onMount } from "svelte";
-	import { trans, names, accounts, refs } from "../lib/store";
+	import { allTrans, names, accounts, refs } from "../lib/store";
 
 	onMount(async() => {
+		await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
+			return res.json()
+		}).then((json) => {
+			$allTrans = json.data;
+		})
 
-		const res = await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json')
-		const json = await res.json()
-
-	  $trans = json.data;
 	});
 </script>
 
