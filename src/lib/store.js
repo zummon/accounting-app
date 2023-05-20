@@ -1,27 +1,24 @@
 import { writable, derived } from "svelte/store";
+import { modelQueryTrans } from './model'
 
 export const allTrans = writable([]);
 
 export const queryTrans = writable({
-	date: { start: '', end: '' },
-	refs: [],
-	names: [],
-	accounts: [],
+	...modelQueryTrans
 })
 
 export const trans = derived([ allTrans, queryTrans ], ([ $allTrans, $queryTrans ]) => {
-	let result = $allTrans.slice()
+	let result = $allTrans
 	if ($queryTrans.date.end) {
 		result = result.filter(({ doc }) => {
-			return doc.date <= $queryTrans.date.end
+			return doc[0].date <= $queryTrans.date.end
 		})
 	}
 	if ($queryTrans.date.start) {
 		result = result.filter(({ doc }) => {
-			return doc.date >= $queryTrans.date.start
+			return doc[0].date >= $queryTrans.date.start
 		})
 	}
-	
 
 	return result
 })
