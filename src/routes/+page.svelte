@@ -32,12 +32,12 @@
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Date:</span>
-		<input class="" bind:value={entry.doc[1]} type="date" />
+		<input class="" type="date" bind:value={entry.doc[1]} />
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Name:</span>
-		<input class="" bind:value={entry.doc[2]} type="text" list="names" />
+		<input class="" type="text" list="names" bind:value={entry.doc[2]} />
 	</label>
 
 	<label class="mb-2 inline-flex border">
@@ -50,14 +50,14 @@
 	<span class="mr-2 inline-flex font-semibold">Account:</span>
 	<span class="inline-flex font-semibold">Amount:</span>
 
-	{#each entry.ledger as [account, amount], index (`ledger-${index}`)}
+	{#each entry.ledger as { account, amount }, index (`ledger-${index}`)}
 		<div class="">
 			<label class="mb-2 mr-2 inline-flex items-center border">
-				<input bind:value={account} type="text" list="accounts" class="" />
+				<input class="" type="text" list="accounts" bind:value={account} />
 			</label>
 
 			<label class="mb-2 inline-flex items-center border">
-				<input bind:value={amount} type="number" class="text-right" />
+				<input class="text-right" type="number" bind:value={amount} />
 			</label>
 		</div>
 	{/each}
