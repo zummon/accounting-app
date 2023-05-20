@@ -3,10 +3,12 @@
 	import { onMount } from "svelte";
 	import { trans, names, accounts, refs } from "../lib/store";
 
-	export let data
-
 	onMount(async() => {
-	  $trans = data.trans;
+
+		const res = await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json')
+		const json = await res.json()
+
+	  $trans = json.data;
 	});
 </script>
 
@@ -29,7 +31,7 @@
 <div class="container mx-auto rounded-lg border print:border-0">
 	<div class="flex flex-wrap justify-center border-b px-2 pt-2 print:hidden">
 		<button
-			onclick="location.reload()"
+			on:click={() => {}}
 			class="mb-2 mr-2 h-8 w-8 text-sky-500 hover:text-sky-700"
 		>
 			<svg
@@ -57,7 +59,7 @@
 			>Balance Sheet</a
 		>
 		<button
-			onclick="print()"
+			on:click={() => {print()}}
 			class="mb-2 h-8 w-8 text-sky-500 hover:text-sky-700"
 		>
 			<svg
