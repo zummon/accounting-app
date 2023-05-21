@@ -1,55 +1,64 @@
 import { writable, derived } from "svelte/store";
 
-export const allTrans = writable([]);
+export const trans = writable([]);
 
-export const queryTrans = writable({
+export const query = writable({
 	date: { start: '', end: '' },
   refs: [],
   names: [],
   accounts: [],
 })
 
-export const trans = derived([ allTrans, queryTrans ], ([ $allTrans, $queryTrans ]) => {
-	let result = $allTrans
-	if ($queryTrans.date.end) {
-		result = result.filter(({ doc }) => {
-			return doc[0].date <= $queryTrans.date.end
-		})
-	}
-	if ($queryTrans.date.start) {
-		result = result.filter(({ doc }) => {
-			return doc[0].date >= $queryTrans.date.start
-		})
-	}
+export const subtotal = derived([ trans, query ], ([ $trans, $query ]) => {
+	let result = {}
+	$trans.forEach(({ ref, date, name, ledger }) => {
 
-	$queryTrans.refs
-	$queryTrans.names
-	$queryTrans.accounts
+		if (date >= $query.date.start || date <= $query.date.end || $query.date.start == '' || $query.date.end == '') {
+			
+			ledger.forEach(({ account, amount }) => {
+				let group = account.charAt(0)
+				let positive = amount
 
+				if (group == '2' || group == '3' || group == '4') {
+					positive = -positive
+				}
+				if (result[group]) {
+					result[group] += positive
+				} else {
+					result[group] = positive
+				}
+			})
+			
+		}
+
+	})
+
+	$query.accounts
+	$query.refs
+	$query.names
+	
 	return result
 })
 
-export const refs = derived(allTrans, ($allTrans) => {
+export const refs = derived(trans, ($trans) => {
 	let result = {};
-	$allTrans.forEach(({ ref }) => {
+	$trans.forEach(({ ref }) => {
 		result[ref] = true
 	})
 	return Object.keys(result).sort();
 });
 
-export const names = derived(allTrans, ($allTrans) => {
+export const names = derived(trans, ($trans) => {
 	let result = {};
-	$allTrans.forEach(({ doc }) => {
-		doc.forEach(({ name }) => {
-			result[name] = true
-		})
+	$trans.forEach(({ name }) => {
+		result[name] = true
 	})
 	return Object.keys(result).sort();
 });
 
-export const accounts = derived(allTrans, ($allTrans) => {
+export const accounts = derived(trans, ($trans) => {
 	let result = {};
-	$allTrans.forEach(({ ledger }) => {
+	$trans.forEach(({ ledger }) => {
 		ledger.forEach(({ account }) => {
 			result[account] = true
 		})
