@@ -37,7 +37,7 @@
 </datalist>
 
 <div class="flex flex-wrap justify-center px-2 pt-4 print:hidden">
-	<button class="mb-4 mr-4 text-sky-500 disabled:text-gray-500" disabled={gettingTrans}
+	<button class="mb-4 mr-4 text-sky-500 disabled:text-gray-300" disabled={gettingTrans}
 		on:click={async () => {
 			gettingTrans = true
 			await getTrans().then(() => {
