@@ -119,29 +119,3 @@
 <div class="px-2 pb-4">
 	<canvas bind:this={chartCanvas}></canvas>
 </div>
-
-<table class="w-full border rounded-lg">
-  <thead>
-    <tr>
-      <td class="px-4 py-2 border-b">Date</td>
-      <td class="px-4 py-2 border-b">Name</td>
-      <td class="px-4 py-2 border-b">?</td>
-    </tr>
-  </thead>
-  <tbody>
-		{#each $trans as { ref, doc, ledger }, index (`tran-${ref}`)}
-			<tr class={index % 2 ? '' : 'bg-gray-50'}>
-				<td class="px-4 py-2 border-b">{new Date(doc[0].date).toDateString()}</td>
-				<td class="px-4 py-2 border-b">{doc[0].name}</td>
-				<td class="px-4 py-2 border-b">{''}</td>
-			</tr>
-		{/each}
-  </tbody>
-	<tfoot>
-    <tr>
-      <td class="px-4 py-2 text-right"></td>
-      <td class="px-4 py-2 text-right">Total</td>
-      <td class="px-4 py-2 text-right"></td>
-    </tr>
-  </tfoot>
-</table>

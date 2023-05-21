@@ -22,6 +22,10 @@ export const trans = derived([ allTrans, queryTrans ], ([ $allTrans, $queryTrans
 		})
 	}
 
+	$queryTrans.refs = []
+	$queryTrans.names = []
+	$queryTrans.accounts = []
+
 	return result
 })
 
