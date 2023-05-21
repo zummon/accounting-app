@@ -1,16 +1,27 @@
 <script>
 	import "../style.css";
 	import { onMount } from "svelte";
+	import { dev } from '$app/environment';
 	import { trans, names, accounts, refs } from "../lib/store";
 
 	let gettingTrans = false
 
 	const getTrans = async () => {
-		await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
-			return res.json()
-		}).then((json) => {
-			$trans = json.data;
-		})
+		if (dev) {
+			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
+				return res.json()
+			}).then((json) => {
+				$trans = json.data;
+			})
+		} else {
+			google.script.run.withSuccessHandler((result) => {
+				$trans = result.data
+
+			}).withFailureHandler((err) => {
+				
+			}).getData()
+
+		}
 
 	}
 
