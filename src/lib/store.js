@@ -1,10 +1,12 @@
 import { writable, derived } from "svelte/store";
-import { modelQueryTrans } from './model'
 
 export const allTrans = writable([]);
 
 export const queryTrans = writable({
-	...modelQueryTrans
+	date: { start: '', end: '' },
+  refs: [],
+  names: [],
+  accounts: [],
 })
 
 export const trans = derived([ allTrans, queryTrans ], ([ $allTrans, $queryTrans ]) => {

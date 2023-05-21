@@ -1,6 +1,5 @@
 <script>
 	import { trans, queryTrans } from "../lib/store";
-	import { modelQueryTrans } from "../lib/model";
 	import { onMount } from "svelte";
 	import chartjs from 'chart.js/auto';
 
@@ -34,7 +33,11 @@
 <div class="px-2 pb-4">
 	<span class="mb-2 mr-2 text-xl">Filter - Query</span>
 	<button class="mb-2 mr-2 text-fuchsia-500 print:hidden" on:click={() => {
-		// $queryTrans = { ...modelQueryTrans }
+		$queryTrans.date.start = ''
+		$queryTrans.date.end = ''
+		$queryTrans.refs = []
+		$queryTrans.names = []
+		$queryTrans.accounts = []
 		ref = ''
 		name = ''
 		account = ''
@@ -42,15 +45,21 @@
 		Clear
 	</button>
 	<br />
-	<label class="mb-2 mr-2">
-		<span class="mr-2">Start date:</span>
-		<input class="border-0 px-2 py-0.5 bg-transparent" type="datetime-local" bind:value={$queryTrans.date.start} />
-	</label>
+	<abbr class="no-underline" title={$queryTrans.date.start}>
+		<label class="mb-2 mr-2">
+			<span class="mr-2">
+				Start date:
+			</span>
+			<input class="border-0 px-2 py-0.5 bg-transparent" type="datetime-local" bind:value={$queryTrans.date.start} />
+		</label>
+	</abbr>
 	<br />
-	<label class="mb-2 mr-2">
-		<span class="mr-2">End date:</span>
-		<input class="border-0 px-2 py-0.5 bg-transparent" type="datetime-local" bind:value={$queryTrans.date.end} />
-	</label>
+	<abbr class="no-underline" title={$queryTrans.date.end}>
+		<label class="mb-2 mr-2">
+			<span class="mr-2">End date:</span>
+			<input class="border-0 px-2 py-0.5 bg-transparent" type="datetime-local" bind:value={$queryTrans.date.end} />
+		</label>
+	</abbr>
 	<br />
 	<label class="mb-2 mr-2" for="ref">
 		<span class="">Ref:</span>
@@ -63,16 +72,12 @@
 			{value}
 		</button>
 	{/each}
-	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="refs" id="ref" placeholder="type then click include" bind:value={ref} />
-	<button class="mb-2 mr-2 text-sky-500 print:hidden" on:click={() => {
+	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="refs" id="ref" placeholder="type.." bind:value={ref} on:change={() => {
 		if (ref && $queryTrans.refs.indexOf(ref) == -1) {
-			$queryTrans.refs.push(ref)
-			$queryTrans.refs = $queryTrans.refs
+			$queryTrans.refs = [...$queryTrans.refs, ref]
 			ref = ''
 		}
-	}}>
-		include
-	</button>
+	}} />
 	<br />
 	<label class="mb-2 mr-2" for="name">
 		<span class="mr-2">Name:</span>
@@ -85,16 +90,12 @@
 			{value}
 		</button>
 	{/each}
-	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="names" id="name" placeholder="type then click include" bind:value={name} />
-	<button class="mb-2 mr-2 text-sky-500 print:hidden" on:click={() => {
+	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="names" id="name" placeholder="type.." bind:value={name} on:change={() => {
 		if (name && $queryTrans.names.indexOf(name) == -1) {
-			$queryTrans.names.push(name)
-			$queryTrans.names = $queryTrans.names
+			$queryTrans.names = [...$queryTrans.names, name]
 			name = ''
 		}
-	}}>
-		include
-	</button>
+	}} />
 	<br />
 	<label class="mb-2 mr-2" for="account">
 		<span class="mr-2">Account:</span>
@@ -107,20 +108,12 @@
 			{value}
 		</button>
 	{/each}
-	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="accounts" id="account" placeholder="type then click include" bind:value={account} />
-	<button class="mb-2 mr-2 text-sky-500 print:hidden" on:click={() => {
+	<input class="border-0 px-2 py-0.5 bg-transparent print:hidden" type="text" list="accounts" id="account" placeholder="type.." bind:value={account} on:change={() => {
 		if (account && $queryTrans.accounts.indexOf(account) == -1) {
-			$queryTrans.accounts.push(account)
-			$queryTrans.accounts = $queryTrans.accounts
+			$queryTrans.accounts = [...$queryTrans.accounts, account]
 			account = ''
 		}
-	}}>
-		include
-	</button>
-	<br />
-	<span class="text-gray-300">
-		{JSON.stringify($queryTrans)}
-	</span>
+	}} />
 </div>
 
 <div class="px-2 pb-4">
