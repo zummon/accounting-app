@@ -13,6 +13,7 @@
 	let grouptotal = {}
 
 	$: {
+		grouptotal = {}
 		Object.entries($subtotal).forEach(([key,value]) => {
 			let group = Number(key.charAt(0))
 			let groupName = ['Asset','Liability',`Owner's equity`,'Revenue'][group - 1]

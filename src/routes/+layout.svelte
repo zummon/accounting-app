@@ -112,6 +112,6 @@
 <a
 	href="https://zummon.page/"
 	target="_blank"
-	class="mx-auto mt-2 block w-fit text-sky-500 hover:text-sky-700 print:hidden"
+	class="mx-auto mt-2 block w-fit text-sky-500 print:hidden"
 	>Made by zummon</a
 >
