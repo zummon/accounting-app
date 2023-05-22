@@ -11,26 +11,26 @@ export const query = writable({
 
 export const subtotal = derived([ trans, query ], ([ $trans, $query ]) => {
 	let result = {}
+
 	$trans.forEach(({ ref, date, name, ledger }) => {
-
-		if (date >= $query.date.start || date <= $query.date.end || $query.date.start == '' || $query.date.end == '') {
-			
+		
+		if (date <= $query.date.end || $query.date.end == '') {
 			ledger.forEach(({ account, amount }) => {
-				let group = account.charAt(0)
-				let positive = amount
+				const group = Number(account.charAt(0))
 
-				if (group == '2' || group == '3' || group == '4') {
-					positive = -positive
+				if (date < $query.date.start) {
+					if (group >= 4) {
+						account = '3 Generated retained earnings'
+					}
 				}
-				if (result[group]) {
-					result[group] += positive
+
+				if (result[account]) {
+					result[account] += amount
 				} else {
-					result[group] = positive
+					result[account] = amount
 				}
 			})
-			
 		}
-
 	})
 
 	$query.accounts
