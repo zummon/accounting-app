@@ -1,76 +1,99 @@
 <script>
 	import { trans } from "../../lib/store";
 	import { onMount } from "svelte";
+	import { dev } from '$app/environment';
 
-	// let entry = {};
-	// let duty = "";
+	let entry = { ledger: [{}] };
 
-	// const getEntry = (event) => {
-	// 	const orgRef = Object.keys($trans)[0];
-	// 	let ref = orgRef;
-	// 	if (event) {
-	// 		ref = event.target.value;
-	// 	}
-	// 	let tran = $trans[ref];
-	// 	if (!tran) {
-	// 		tran = $trans[orgRef];
-	// 	}
-	// 	entry = { ...tran, doc: [ref, ...tran.doc] };
-	// };
+	const setEntry = () => {
+
+		if (dev) {
+			google.script.run.withSuccessHandler((array) => {
+
+			}).withFailureHandler((err) => {
+				
+			}).setData([entry])
+		}
+
+	};
 
 	onMount(async () => {
+		let index = $trans.length - 1
 
-		// getEntry();
+		entry = $trans[index]
 	});
 </script>
 
-<!-- <div class="px-2 pt-2">
+<div class="px-2 pt-2">
 	<h1 class="mb-2 text-xl font-medium">Entry</h1>
+
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Ref:</span>
-		<input
-			on:input={getEntry}
-			value={entry.doc[0]}
-			type="text"
-			list="refs"
-			class=""
-		/>
+		<input class="w-16" type="text" list="refs" disabled bind:value={entry.ref} />
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Date:</span>
-		<input bind:value={entry.doc[1]} type="date" class="" />
+		<input class="" type="date" bind:value={entry.date} />
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
-		<span class="mr-2 font-semibold">To/From:</span>
-		<input bind:value={entry.doc[2]} type="text" list="names" class="" />
+		<span class="mr-2 font-semibold">name:</span>
+		<input class="" type="text" list="names" bind:value={entry.name} />
 	</label>
 
 	<label class="mb-2 inline-flex border">
 		<span class="mr-2 font-semibold">Description:</span>
-		<textarea bind:value={entry.doc[3]} class="" />
+		<textarea class="" bind:value={entry.desc} />
 	</label>
 
 	<hr />
 
+	<button class="text-sky-500 mr-2" on:click={() => {
+		entry.ledger.push({})
+		entry.ledger.push({})
+		entry.ledger = entry.ledger
+	}}>
+		Add
+	</button>
 	<span class="mr-2 inline-flex font-semibold">Account:</span>
 	<span class="inline-flex font-semibold">Amount:</span>
 
-	{#each entry.ledger as [account, amount], index (`ledger-${index}`)}
+	{#each entry.ledger as { ref, account, amount }, index (`ledger-${index}`)}
 		<div class="">
 			<label class="mb-2 mr-2 inline-flex items-center border">
-				<input bind:value={account} type="text" list="accounts" class="" />
+				<input class="w-12" type="text" disabled bind:value={ref} />
+			</label>
+
+			<label class="mb-2 mr-2 inline-flex items-center border">
+				<input class="" type="text" list="accounts" bind:value={account} />
 			</label>
 
 			<label class="mb-2 inline-flex items-center border">
-				<input bind:value={amount} type="number" class="text-right" />
+				<input class="text-right" type="number" bind:value={amount} />
 			</label>
+
+			<button class="text-sky-500" on:click={() => { 
+				entry.ledger.splice(index, 1)
+				entry.ledger = entry.ledger
+			}}>
+				Delete
+			</button>
 		</div>
 	{/each}
-</div> -->
 
-<table class="w-full border rounded-lg">
+	<hr />
+
+	<div class="text-center">
+		<button class="text-sky-500" on:click={() => {
+			setEntry()
+		}}>
+			Add
+		</button>
+	</div>
+</div>
+
+<table class="w-full border rounded-lg my-4">
   <thead>
     <tr>
       <td class="px-4 py-2 border-b">Date</td>
@@ -83,13 +106,19 @@
 			<tr class={index % 2 ? '' : 'bg-gray-50'}>
 				<td class="px-4 py-2 border-b">{new Date(date).toDateString()}</td>
 				<td class="px-4 py-2 border-b">{name}</td>
-				<td class="px-4 py-2 border-b text-right">{''}</td>
+				<td class="px-4 py-2 border-b text-right">
+					<button class="text-sky-500" on:click={() => {
+						entry = $trans[index]
+					}}>
+						Edit
+					</button>
+				</td>
 			</tr>
 		{/each}
   </tbody>
 	<tfoot>
     <tr>
-      <td class="px-4 py-2">Total</td>
+      <td class="px-4 py-2"></td>
       <td class="px-4 py-2"></td>
       <td class="px-4 py-2 text-right"></td>
     </tr>
