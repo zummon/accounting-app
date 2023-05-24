@@ -1,6 +1,6 @@
 
 <script>
-  import { subtotal, query } from "../../lib/store";
+  import { subtotal, query } from "../lib/store";
 
 </script>
 

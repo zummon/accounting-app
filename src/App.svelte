@@ -1,13 +1,16 @@
 <script>
-	import "../style.css";
-	import { onMount } from "svelte";
-	import { dev } from '$app/environment';
-	import { trans, names, accounts, refs } from "../lib/store";
+	import "./style.css";
+	import { onMount, env } from "svelte";
+	import { trans, names, accounts, refs } from "./lib/store";
+	import Dashboard from './routes/Dashboard.svelte'
+	import Entry from './routes/Entry.svelte'
+	import TrialBalance from './routes/TrialBalance.svelte'
 
 	let gettingTrans = false
+	let route = '/'
 
 	const getTrans = async () => {
-		if (dev) {
+		if (env.DEV) {
 			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
 				return res.json()
 			}).then((json) => {
@@ -71,10 +74,16 @@
 			/>
 		</svg>
 	</button>
-	<a href="/" class="mb-4 mr-4 text-sky-500">Home</a>
-	<a href="/entry" class="mb-4 mr-4 text-sky-500">Entry</a>
-	<a href="/tb" class="mb-4 mr-4 text-sky-500"
-		>Trial Balance</a
+	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
+		route = '/'
+	}}>Home</button>
+	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
+		route = '/entry'
+	}}>Entry</button>
+	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
+		route = '/tb'
+	}}
+		>Trial Balance</button
 	>
 	<!-- <a href="/" class="mb-4 mr-4 text-sky-500"
 		>income Statement</a
@@ -106,7 +115,13 @@
 </div>
 
 <div class="container mx-auto">
-	<slot />
+	{#if route == '/entry'}
+		<Entry />
+	{:else if route == '/tb'}
+		<TrialBalance />
+	{:else}
+		<Dashboard />
+	{/if}
 </div>
 
 <a
