@@ -3,7 +3,7 @@ import { vitePreprocess } from "@sveltejs/kit/vite";
 
 const config = {
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({ fallback: 'index.html' }),
 	},
 	preprocess: vitePreprocess(),
 };
