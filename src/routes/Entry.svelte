@@ -6,7 +6,7 @@
 
 	const setEntry = () => {
 
-		if (true) {
+		if (window.google) {
 			google.script.run.withSuccessHandler((array) => {
 
 			}).withFailureHandler((err) => {

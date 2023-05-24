@@ -10,22 +10,20 @@
 	let route = '/'
 
 	const getTrans = async () => {
-		if (false) {
-			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
-				return res.json()
-			}).then((json) => {
-				$trans = json.data;
-			})
-		} else {
+		if (window.google) {
 			google.script.run.withSuccessHandler((result) => {
 				$trans = result.data
 
 			}).withFailureHandler((err) => {
 				
 			}).getData()
-
+		} else {
+			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
+				return res.json()
+			}).then((json) => {
+				$trans = json.data;
+			})
 		}
-
 	}
 
 	onMount(async () => {
