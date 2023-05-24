@@ -1,6 +1,6 @@
 <script>
 	import "./style.css";
-	import { onMount, env } from "svelte";
+	import { onMount } from "svelte";
 	import { trans, names, accounts, refs } from "./lib/store";
 	import Dashboard from './routes/Dashboard.svelte'
 	import Entry from './routes/Entry.svelte'
@@ -10,7 +10,7 @@
 	let route = '/'
 
 	const getTrans = async () => {
-		if (env.DEV) {
+		if (false) {
 			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
 				return res.json()
 			}).then((json) => {

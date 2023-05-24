@@ -1,12 +1,12 @@
 <script>
 	import { trans } from "../lib/store";
-	import { onMount, env } from "svelte";
+	import { onMount } from "svelte";
 
 	let entry = { ledger: [{}] };
 
 	const setEntry = () => {
 
-		if (env.DEV) {
+		if (true) {
 			google.script.run.withSuccessHandler((array) => {
 
 			}).withFailureHandler((err) => {
