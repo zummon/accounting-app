@@ -16,7 +16,7 @@
 			await fetch("https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json", {
 				mode: 'no-cors',
 				method: "POST",
-				body: { data: [entry] }
+				body: { data: JSON.stringify([entry]) }
 			});
 		}
 
@@ -39,7 +39,7 @@
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Date:</span>
-		<input class="" type="date" bind:value={entry.date} />
+		<input class="" type="datetime-local" bind:value={entry.date} />
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
