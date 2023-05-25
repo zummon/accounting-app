@@ -4,7 +4,7 @@
 
 	let entry = { ledger: [{}] };
 
-	const setEntry = () => {
+	const setEntry = async () => {
 
 		if (window.google) {
 			google.script.run.withSuccessHandler((array) => {
@@ -12,6 +12,12 @@
 			}).withFailureHandler((err) => {
 				
 			}).setData([entry])
+		} else {
+			await fetch("https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json", {
+				mode: 'no-cors',
+				method: "POST",
+				body: { data: [entry] }
+			});
 		}
 
 	};
@@ -84,8 +90,8 @@
 	<hr />
 
 	<div class="text-center">
-		<button class="text-sky-500" on:click={() => {
-			setEntry()
+		<button class="text-sky-500" on:click={async () => {
+			await setEntry()
 		}}>
 			Add
 		</button>
