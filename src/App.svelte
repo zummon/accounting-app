@@ -1,34 +1,36 @@
 <script>
-	import "./style.css";
 	import { onMount } from "svelte";
 	import { trans, names, accounts, refs } from "./lib/store";
-	import Dashboard from './routes/Dashboard.svelte'
-	import Entry from './routes/Entry.svelte'
-	import TrialBalance from './routes/TrialBalance.svelte'
+	import Dashboard from "./routes/Dashboard.svelte";
+	import Entry from "./routes/Entry.svelte";
+	import TrialBalance from "./routes/TrialBalance.svelte";
 
-	let gettingTrans = false
-	let route = '/'
+	let gettingTrans = false;
+	let route = "/";
 
 	const getTrans = async () => {
 		if (window.google) {
-			google.script.run.withSuccessHandler((result) => {
-				$trans = result.data
-
-			}).withFailureHandler((err) => {
-				
-			}).getData()
+			google.script.run
+				.withSuccessHandler((result) => {
+					$trans = result.data;
+				})
+				.withFailureHandler((err) => {})
+				.getData();
 		} else {
-			await fetch('https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json').then((res) => {
-				return res.json()
-			}).then((json) => {
-				$trans = json.data;
-			})
+			await fetch(
+				"https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json"
+			)
+				.then((res) => {
+					return res.json();
+				})
+				.then((json) => {
+					$trans = json.data;
+				});
 		}
-	}
+	};
 
 	onMount(async () => {
-		await getTrans()
-
+		await getTrans();
 	});
 </script>
 
@@ -49,12 +51,14 @@
 </datalist>
 
 <div class="flex flex-wrap justify-center px-2 pt-4 print:hidden">
-	<button class="mb-4 mr-4 text-sky-500 disabled:text-gray-300" disabled={gettingTrans}
+	<button
+		class="mb-4 mr-4 text-sky-500 disabled:text-gray-300"
+		disabled={gettingTrans}
 		on:click={async () => {
-			gettingTrans = true
+			gettingTrans = true;
 			await getTrans().then(() => {
-				gettingTrans = false
-			})
+				gettingTrans = false;
+			});
 		}}
 	>
 		<svg
@@ -72,16 +76,23 @@
 			/>
 		</svg>
 	</button>
-	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
-		route = '/'
-	}}>Home</button>
-	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
-		route = '/entry'
-	}}>Entry</button>
-	<button class="mb-4 mr-4 text-sky-500" on:click={() => {
-		route = '/tb'
-	}}
-		>Trial Balance</button
+	<button
+		class="mb-4 mr-4 text-sky-500"
+		on:click={() => {
+			route = "/";
+		}}>Home</button
+	>
+	<button
+		class="mb-4 mr-4 text-sky-500"
+		on:click={() => {
+			route = "/entry";
+		}}>Entry</button
+	>
+	<button
+		class="mb-4 mr-4 text-sky-500"
+		on:click={() => {
+			route = "/tb";
+		}}>Trial Balance</button
 	>
 	<!-- <a href="/" class="mb-4 mr-4 text-sky-500"
 		>income Statement</a
@@ -91,8 +102,8 @@
 	> -->
 	<button
 		class="mb-2 text-sky-500"
-		on:click={() => { 
-			print() 
+		on:click={() => {
+			print();
 		}}
 	>
 		<svg
@@ -113,9 +124,9 @@
 </div>
 
 <div class="container mx-auto">
-	{#if route == '/entry'}
+	{#if route == "/entry"}
 		<Entry />
-	{:else if route == '/tb'}
+	{:else if route == "/tb"}
 		<TrialBalance />
 	{:else}
 		<Dashboard />
@@ -125,6 +136,5 @@
 <a
 	href="https://zummon.page/"
 	target="_blank"
-	class="mx-auto mt-2 block w-fit text-sky-500 print:hidden"
-	>Made by zummon</a
+	class="mx-auto mt-2 block w-fit text-sky-500 print:hidden">Made by zummon</a
 >
