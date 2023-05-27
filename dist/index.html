@@ -159,7 +159,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr :class="index % 2 ? '' : 'bg-gray-50'" v-for="({ ref, date, name, ledger }, index) in trans">
+							<tr :class="{'bg-gray-50': index % 2}" v-for="({ ref, date, name, ledger }, index) in trans">
 								<td class="px-4 py-2 border-b">{{ new Date(date).toDateString() }}</td>
 								<td class="px-4 py-2 border-b">{{ name }}</td>
 								<td class="px-4 py-2 border-b text-right">
@@ -219,11 +219,25 @@
 		<script>
 			Vue.createApp({
 				data() {
+					let trans = []
+					let gettingTrans = false
+					let entry = { ledger: [{}] }
+
+					google.script.run
+						.withSuccessHandler((result) => {
+							trans = result.data;
+							gettingTrans = false;
+							entry = trans[index]
+						})
+						.withFailureHandler((err) => {
+						})
+						.getData();
+
 					return {
-						trans: [],
-						gettingTrans: false,
+						trans,
+						gettingTrans,
 						route: "/",
-						entry: { ledger: [{}] },
+						entry,
 					};
 				},
 				methods: {
@@ -287,7 +301,7 @@
 					},
 				},
 				mounted() {
-					this.getData();
+					// this.getData();
 				},
 			}).mount("#app");
 		</script>

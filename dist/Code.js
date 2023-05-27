@@ -219,8 +219,8 @@ const doGet = (e) => {
 	return html;
 };
 
-const doPost = (e) => {
-	let respond = setData(e.body.data);
+// const doPost = (e) => {
+// 	let respond = setData(e.body.data);
 
-	return respond;
-};
+// 	return respond;
+// };
