@@ -5,27 +5,27 @@
 	let entry = { ledger: [{}] };
 
 	const setEntry = async () => {
-
 		if (window.google) {
-			google.script.run.withSuccessHandler((array) => {
-
-			}).withFailureHandler((err) => {
-				
-			}).setData([entry])
+			google.script.run
+				.withSuccessHandler((array) => {})
+				.withFailureHandler((err) => {})
+				.setData(JSON.stringify([entry]));
 		} else {
-			await fetch("https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json", {
-				mode: 'no-cors',
-				method: "POST",
-				body: { data: JSON.stringify([entry]) }
-			});
+			await fetch(
+				"https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json",
+				{
+					mode: "no-cors",
+					method: "POST",
+					body: { data: JSON.stringify([entry]) },
+				}
+			);
 		}
-
 	};
 
 	onMount(async () => {
-		let index = $trans.length - 1
+		let index = $trans.length - 1;
 
-		entry = $trans[index]
+		entry = $trans[index];
 	});
 </script>
 
@@ -34,7 +34,13 @@
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
 		<span class="mr-2 font-semibold">Ref:</span>
-		<input class="w-16" type="text" list="refs" disabled bind:value={entry.ref} />
+		<input
+			class="w-16"
+			type="text"
+			list="refs"
+			disabled
+			bind:value={entry.ref}
+		/>
 	</label>
 
 	<label class="mb-2 mr-2 inline-flex items-center border">
@@ -54,11 +60,14 @@
 
 	<hr />
 
-	<button class="text-sky-500 mr-2" on:click={() => {
-		entry.ledger.push({})
-		entry.ledger.push({})
-		entry.ledger = entry.ledger
-	}}>
+	<button
+		class="mr-2 text-sky-500"
+		on:click={() => {
+			entry.ledger.push({});
+			entry.ledger.push({});
+			entry.ledger = entry.ledger;
+		}}
+	>
 		Add
 	</button>
 	<span class="mr-2 inline-flex font-semibold">Account:</span>
@@ -78,10 +87,13 @@
 				<input class="text-right" type="number" bind:value={amount} />
 			</label>
 
-			<button class="text-sky-500" on:click={() => { 
-				entry.ledger.splice(index, 1)
-				entry.ledger = entry.ledger
-			}}>
+			<button
+				class="text-sky-500"
+				on:click={() => {
+					entry.ledger.splice(index, 1);
+					entry.ledger = entry.ledger;
+				}}
+			>
 				Delete
 			</button>
 		</div>
@@ -90,42 +102,48 @@
 	<hr />
 
 	<div class="text-center">
-		<button class="text-sky-500" on:click={async () => {
-			await setEntry()
-		}}>
+		<button
+			class="text-sky-500"
+			on:click={async () => {
+				await setEntry();
+			}}
+		>
 			Add
 		</button>
 	</div>
 </div>
 
-<table class="w-full border rounded-lg my-4">
-  <thead>
-    <tr>
-      <td class="px-4 py-2 border-b">Date</td>
-      <td class="px-4 py-2 border-b">Name</td>
-      <td class="px-4 py-2 border-b text-right">?</td>
-    </tr>
-  </thead>
-  <tbody>
+<table class="my-4 w-full rounded-lg border">
+	<thead>
+		<tr>
+			<td class="border-b px-4 py-2">Date</td>
+			<td class="border-b px-4 py-2">Name</td>
+			<td class="border-b px-4 py-2 text-right">?</td>
+		</tr>
+	</thead>
+	<tbody>
 		{#each $trans as { ref, date, name, ledger }, index (`tran-${ref}`)}
-			<tr class={index % 2 ? '' : 'bg-gray-50'}>
-				<td class="px-4 py-2 border-b">{new Date(date).toDateString()}</td>
-				<td class="px-4 py-2 border-b">{name}</td>
-				<td class="px-4 py-2 border-b text-right">
-					<button class="text-sky-500" on:click={() => {
-						entry = $trans[index]
-					}}>
+			<tr class={index % 2 ? "" : "bg-gray-50"}>
+				<td class="border-b px-4 py-2">{new Date(date).toDateString()}</td>
+				<td class="border-b px-4 py-2">{name}</td>
+				<td class="border-b px-4 py-2 text-right">
+					<button
+						class="text-sky-500"
+						on:click={() => {
+							entry = $trans[index];
+						}}
+					>
 						Edit
 					</button>
 				</td>
 			</tr>
 		{/each}
-  </tbody>
+	</tbody>
 	<tfoot>
-    <tr>
-      <td class="px-4 py-2"></td>
-      <td class="px-4 py-2"></td>
-      <td class="px-4 py-2 text-right"></td>
-    </tr>
-  </tfoot>
+		<tr>
+			<td class="px-4 py-2" />
+			<td class="px-4 py-2" />
+			<td class="px-4 py-2 text-right" />
+		</tr>
+	</tfoot>
 </table>

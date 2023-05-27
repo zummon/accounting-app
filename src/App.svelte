@@ -12,6 +12,7 @@
 		if (window.google) {
 			google.script.run
 				.withSuccessHandler((result) => {
+					result = JSON.parse(result);
 					$trans = result.data;
 				})
 				.withFailureHandler((err) => {})

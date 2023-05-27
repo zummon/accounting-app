@@ -151,7 +151,7 @@ const getData = () => {
 const setData = (saves) => {
 	let warning = [];
 
-	saves = JSON.stringify(saves);
+	saves = JSON.parse(saves);
 
 	saves.forEach((save) => {
 		let { ref, date, name, desc, ledger } = save;
@@ -214,7 +214,7 @@ const doGet = (e) => {
 		return json;
 	}
 
-	let template = HtmlService.createTemplateFromFile("index");
+	let template = HtmlService.createTemplateFromFile("app/index");
 	let html = template.evaluate();
 	return html;
 };
