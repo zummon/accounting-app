@@ -2,14 +2,13 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"dev": "parcel src/index.html",
-		"build": "parcel build src/index.html",
 		"login": "clasp login",
 		"logout": "clasp logout",
 		"pull": "clasp pull",
 		"push": "clasp push"
 	},
 	"devDependencies": {
+		"@babel/polyfill": "^7.12.1",
 		"@google/clasp": "^2.4.2",
 		"@tailwindcss/forms": "^0.5.3",
 		"@types/google-apps-script": "^1.0.64",
@@ -27,5 +26,8 @@
 	},
 	"dependencies": {
 		"chart.js": "^4.3.0"
-	}
+	},
+	"browserslist": [
+		"last 1 chrome versions"
+	]
 }

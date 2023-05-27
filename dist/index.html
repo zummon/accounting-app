@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- https://unpkg.com/vue@3/dist/vue.global.js -->
+		<script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+		<!-- https://cdn.tailwindcss.com -->
+		<script src="https://cdn.tailwindcss.com/3.3.1?plugins=forms"></script>
+		<title>Accounting App</title>
+	</head>
+	<body class="">
+		<div class="" id="app">
+			<datalist id="refs">
+				<option
+					v-for="(value, index) in refs()"
+					:value="value"
+					:key="`ref-${index}`"
+				/>
+			</datalist>
+			<datalist id="names">
+				<option
+					v-for="(value, index) in names()"
+					:value="value"
+					:key="`name-${index}`"
+				/>
+			</datalist>
+			<datalist id="accounts">
+				<option
+					v-for="(value, index) in accounts()"
+					:value="value"
+					:key="`account-${index}`"
+				/>
+			</datalist>
+		</div>
+
+		<div class="flex flex-wrap justify-center px-2 pt-4 print:hidden">
+			<button
+				class="mb-4 mr-4 text-sky-500 disabled:text-gray-300"
+				:disabled="gettingTrans"
+				@click=" () => {
+					getTrans()
+				}"
+			>
+				<svg
+					class="h-8 w-8"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+					/>
+				</svg>
+			</button>
+			<button
+				class="mb-4 mr-4 text-sky-500"
+				@click="() => {
+					route = "/";
+				}">Home</button
+			>
+			<button
+				class="mb-4 mr-4 text-sky-500"
+				@click="() => {
+					route = "/entry";
+				}">Entry</button
+			>
+			<button
+				class="mb-4 mr-4 text-sky-500"
+				@click="() => {
+					route = "/tb";
+				}">Trial Balance</button
+			>
+			<button
+				class="mb-2 text-sky-500"
+				@click="() => {
+					print();
+				}"
+			>
+				<svg
+					class="h-8 w-8"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"
+					/>
+				</svg>
+			</button>
+		</div>
+		
+		<div class="container mx-auto">
+			<template v-if="route == '/entry'">
+
+				<div class="px-2 pt-2">
+					<h1 class="mb-2 text-xl font-medium">Entry</h1>
+				
+					<label class="mb-2 mr-2 inline-flex items-center border">
+						<span class="mr-2 font-semibold">Ref:</span>
+						<input class="w-16" type="text" list="refs" disabled v-model="entry.ref" />
+					</label>
+				
+					<label class="mb-2 mr-2 inline-flex items-center border">
+						<span class="mr-2 font-semibold">Date:</span>
+						<input class="" type="datetime-local" v-model="entry.date" />
+					</label>
+				
+					<label class="mb-2 mr-2 inline-flex items-center border">
+						<span class="mr-2 font-semibold">name:</span>
+						<input class="" type="text" list="names" v-model="entry.name" />
+					</label>
+				
+					<label class="mb-2 inline-flex border">
+						<span class="mr-2 font-semibold">Description:</span>
+						<textarea class="" v-model="entry.desc" />
+					</label>
+				
+					<hr />
+				
+					<button class="text-sky-500 mr-2" @click="() => {
+						entry.ledger = [{}, {}, ...entry.ledger]
+					}">
+						Add
+					</button>
+					<span class="mr-2 inline-flex font-semibold">Account:</span>
+					<span class="inline-flex font-semibold">Amount:</span>
+				
+					<div class="" v-for="({ ref, account, amount }, index) in entry.ledger">
+						<label class="mb-2 mr-2 inline-flex items-center border">
+							<input class="w-12" type="text" disabled v-model="ref" />
+						</label>
+			
+						<label class="mb-2 mr-2 inline-flex items-center border">
+							<input class="" type="text" list="accounts" v-model="account" />
+						</label>
+			
+						<label class="mb-2 inline-flex items-center border">
+							<input class="text-right" type="number" v-model="amount" />
+						</label>
+			
+						<button class="text-sky-500" @click="() => { 
+							entry.ledger.splice(index, 1)
+							entry.ledger = entry.ledger
+						}">
+							Delete
+						</button>
+					</div>
+					
+					<hr />
+				
+					<div class="text-center">
+						<button class="text-sky-500" @click={() => {
+							setEntry()
+						}}>
+							Add
+						</button>
+					</div>
+				</div>
+
+				<table class="w-full border rounded-lg my-4">
+					<thead>
+						<tr>
+							<td class="px-4 py-2 border-b">Date</td>
+							<td class="px-4 py-2 border-b">Name</td>
+							<td class="px-4 py-2 border-b text-right">?</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr :class="index % 2 ? '' : 'bg-gray-50'" v-for="({ ref, date, name, ledger }, index) in trans">
+							<td class="px-4 py-2 border-b">{{new Date(date).toDateString()}}</td>
+							<td class="px-4 py-2 border-b">{{name}}</td>
+							<td class="px-4 py-2 border-b text-right">
+								<button class="text-sky-500" @click="() => {
+									entry = trans[index]
+								}">
+									Edit
+								</button>
+							</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td class="px-4 py-2"></td>
+							<td class="px-4 py-2"></td>
+							<td class="px-4 py-2 text-right"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</template>
+			<template v-else-if="route == '/tb'">
+				
+			</template>
+			<template v-else>
+				<div class="px-2 pb-4">
+					<table class="">
+						<thead class="border-b">
+							<tr>
+								<td class="px-2 py-2">Group</td>
+								<td class="px-2 py-2 text-right">Amount</td>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- {#each Object.entries(grouptotal) as [key,value], index (`group-${index}`)}
+							<tr class="border-b">
+								<td class="px-2 py-2">{key}</td>
+								<td class="px-2 py-2 text-right">{value}</td>
+							</tr>
+							{/each} -->
+						</tbody>
+						<!-- <tfoot class="">
+							<tr>
+								<td class="px-2 py-2">Balance</td>
+								<td class="px-2 py-2 text-right">0</td>
+							</tr>
+						</tfoot> -->
+					</table>
+				</div>
+			</template>
+		</div>
+		
+		<a
+			href="https://zummon.page/"
+			target="_blank"
+			class="mx-auto mt-2 block w-fit text-sky-500 print:hidden">Made by zummon</a
+		>
+
+		<script>
+			Vue.createApp({
+				data() {
+					return {
+						trans: [],
+						gettingTrans: false,
+						route: "/",
+						entry: { ledger: [{}] },
+					};
+				},
+				methods: {
+					getData() {
+						this.gettingTrans = true;
+						let index = this.trans.length - 1
+						google.script.run
+							.withSuccessHandler((result) => {
+								this.trans = result.data;
+								this.gettingTrans = false;
+								this.entry = this.trans[index]
+							})
+							.withFailureHandler((err) => {
+							})
+							.getData();
+					},
+					setEntry() {
+						google.script.run.withSuccessHandler((array) => {
+
+						}).withFailureHandler((err) => {
+							
+						}).setData([this.entry])
+					}
+				},
+				computed: {
+					refs() {
+						let result = {};
+						this.trans.forEach(({ ref }) => {
+							result[ref] = true;
+						});
+						return Object.keys(result).sort();
+					},
+					names() {
+						let result = {};
+						this.trans.forEach(({ name }) => {
+							result[name] = true;
+						});
+						return Object.keys(result).sort();
+					},
+					accounts() {
+						let result = {};
+						this.trans.forEach(({ ledger }) => {
+							ledger.forEach(({ account }) => {
+								result[account] = true;
+							});
+						});
+						return Object.keys(result).sort();
+					},
+				},
+				mounted() {
+					this.getData();
+				},
+			}).mount("#app");
+		</script>
+	</body>
+</html>
