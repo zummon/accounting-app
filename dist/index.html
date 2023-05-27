@@ -228,24 +228,24 @@
 				},
 				methods: {
 					getData() {
-						// this.gettingTrans = true;
-						// let index = this.trans.length - 1
-						// google.script.run
-						// 	.withSuccessHandler((result) => {
-						// 		this.trans = result.data;
-						// 		this.gettingTrans = false;
-						// 		this.entry = this.trans[index]
-						// 	})
-						// 	.withFailureHandler((err) => {
-						// 	})
-						// 	.getData();
+						this.gettingTrans = true;
+						let index = this.trans.length - 1
+						google.script.run
+							.withSuccessHandler((result) => {
+								this.trans = result.data;
+								this.gettingTrans = false;
+								this.entry = this.trans[index]
+							})
+							.withFailureHandler((err) => {
+							})
+							.getData();
 					},
 					setEntry() {
-						// google.script.run.withSuccessHandler((array) => {
+						google.script.run.withSuccessHandler((array) => {
 
-						// }).withFailureHandler((err) => {
+						}).withFailureHandler((err) => {
 							
-						// }).setData([this.entry])
+						}).setData([this.entry])
 					},
 					setRoute(str) {
 						this.route = str
