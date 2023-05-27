@@ -214,7 +214,7 @@ const doGet = (e) => {
 		return json;
 	}
 
-	let template = HtmlService.createTemplateFromFile("app/index");
+	let template = HtmlService.createTemplateFromFile("index");
 	let html = template.evaluate();
 	return html;
 };
