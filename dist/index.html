@@ -39,9 +39,7 @@
 			<button
 				class="mb-4 mr-4 text-sky-500 disabled:text-gray-300"
 				:disabled="gettingTrans"
-				@click=" () => {
-					getTrans()
-				}"
+				@click="() => { getTrans() }"
 			>
 				<svg
 					class="h-8 w-8"
@@ -60,27 +58,19 @@
 			</button>
 			<button
 				class="mb-4 mr-4 text-sky-500"
-				@click="() => {
-					route = "/";
-				}">Home</button
+				@click="() => {route = "/";}">Home</button
 			>
 			<button
 				class="mb-4 mr-4 text-sky-500"
-				@click="() => {
-					route = "/entry";
-				}">Entry</button
+				@click="() => {route = "/entry";}">Entry</button
 			>
 			<button
 				class="mb-4 mr-4 text-sky-500"
-				@click="() => {
-					route = "/tb";
-				}">Trial Balance</button
+				@click="() => {route = "/tb";}">Trial Balance</button
 			>
 			<button
 				class="mb-2 text-sky-500"
-				@click="() => {
-					print();
-				}"
+				@click="() => {print();}"
 			>
 				<svg
 					class="h-8 w-8"
@@ -127,9 +117,7 @@
 				
 					<hr />
 				
-					<button class="text-sky-500 mr-2" @click="() => {
-						entry.ledger = [{}, {}, ...entry.ledger]
-					}">
+					<button class="text-sky-500 mr-2" @click="() => { entry.ledger = [{}, {}, ...entry.ledger] }">
 						Add
 					</button>
 					<span class="mr-2 inline-flex font-semibold">Account:</span>
@@ -148,10 +136,7 @@
 							<input class="text-right" type="number" v-model="amount" />
 						</label>
 			
-						<button class="text-sky-500" @click="() => { 
-							entry.ledger.splice(index, 1)
-							entry.ledger = entry.ledger
-						}">
+						<button class="text-sky-500" @click="() => { entry.ledger.splice(index, 1); entry.ledger = entry.ledger }">
 							Delete
 						</button>
 					</div>
@@ -159,9 +144,7 @@
 					<hr />
 				
 					<div class="text-center">
-						<button class="text-sky-500" @click={() => {
-							setEntry()
-						}}>
+						<button class="text-sky-500" @click="() => { setEntry() }">
 							Add
 						</button>
 					</div>
@@ -180,9 +163,7 @@
 							<td class="px-4 py-2 border-b">{{new Date(date).toDateString()}}</td>
 							<td class="px-4 py-2 border-b">{{name}}</td>
 							<td class="px-4 py-2 border-b text-right">
-								<button class="text-sky-500" @click="() => {
-									entry = trans[index]
-								}">
+								<button class="text-sky-500" @click="() => { entry = trans[index] }">
 									Edit
 								</button>
 							</td>
