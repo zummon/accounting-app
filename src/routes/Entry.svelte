@@ -87,7 +87,7 @@
 		<button
 			class="text-sky-500"
 			on:click={async () => {
-				await setData();
+				await setData($trans);
 			}}
 		>
 			Add
