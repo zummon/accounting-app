@@ -23,6 +23,26 @@ export const setData = async (data) => {
 		.setData(data);
 };
 
+export const filterTrans = () => {
+	let result = {};
+
+	$trans.forEach(({ ref, date, name, ledger }) => {
+		if (date <= $query.date.end || $query.date.end == "") {
+			ledger.forEach(({ account, amount }) => {
+				const group = Number(account.charAt(0));
+
+				if (date < $query.date.start) {
+					if (group >= 4) {
+						account = "3 Generated retained earnings";
+					}
+				}
+			});
+		}
+	});
+
+	return result;
+};
+
 export const date = writable("");
 
 export const loading = writable(false);

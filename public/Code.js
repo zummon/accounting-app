@@ -6,131 +6,158 @@ const invoiceUrls = [
 ];
 
 const getData = () => {
+	const email = Session.getActiveUser().getEmail();
+
 	let result = {};
 	let warning = [];
 
 	sourceUrls.forEach((url) => {
 		const spreadsheet = SpreadsheetApp.openByUrl(url);
 
-		let sheet = spreadsheet.getSheetByName("doc");
-		let range = sheet.getDataRange();
-		let values = range.getValues();
+		let emails = {};
 
-		values.slice(1).forEach((cells) => {
-			let [ref, date, name, desc] = cells;
-
-			date = date.toISOString().slice(0, 16);
-
-			let resultSec = { date, name, desc };
-
-			if (result[ref]) {
-				warning.push(`duplicated doc ref '${ref}'`);
-			} else {
-				result[ref] = resultSec;
-			}
+		spreadsheet.getViewers().forEach((user) => {
+			emails[user.getEmail()] = "viewer";
 		});
+		spreadsheet.getEditors().forEach((user) => {
+			emails[user.getEmail()] = "editor";
+		});
+		emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-		let key = {};
-		sheet = spreadsheet.getSheetByName("ledger");
-		range = sheet.getDataRange();
-		values = range.getValues();
+		if (emails[email]) {
+			let sheet = spreadsheet.getSheetByName("doc");
+			let range = sheet.getDataRange();
+			let values = range.getValues();
 
-		values.slice(1).forEach((cells) => {
-			let [ref, docRef, account, amount] = cells;
+			values.slice(1).forEach((cells) => {
+				let [ref, date, name, desc] = cells;
 
-			let resultSec = { ref, account, amount };
+				date = date.toISOString().slice(0, 16);
 
-			if (key[ref]) {
-				warning.push(`duplicated ledger ref '${ref}'`);
-			} else {
-				if (result[docRef].ledger) {
-					result[docRef].ledger.push(resultSec);
+				let resultSec = { date, name, desc };
+
+				if (result[ref]) {
+					warning.push(`duplicated doc ref '${ref}'`);
 				} else {
-					result[docRef].ledger = [resultSec];
+					result[ref] = resultSec;
 				}
-			}
-			key[ref] = true;
-		});
+			});
+
+			let key = {};
+			sheet = spreadsheet.getSheetByName("ledger");
+			range = sheet.getDataRange();
+			values = range.getValues();
+
+			values.slice(1).forEach((cells) => {
+				let [ref, docRef, account, amount] = cells;
+
+				let resultSec = { ref, account, amount };
+
+				if (key[ref]) {
+					warning.push(`duplicated ledger ref '${ref}'`);
+				} else {
+					if (result[docRef].ledger) {
+						result[docRef].ledger.push(resultSec);
+					} else {
+						result[docRef].ledger = [resultSec];
+					}
+				}
+				key[ref] = true;
+			});
+		}
 	});
 
 	invoiceUrls.forEach((url) => {
 		const spreadsheet = SpreadsheetApp.openByUrl(url);
-		let resultSec = {};
 
-		let key = {};
-		let sheet = spreadsheet.getSheetByName("item");
-		let range = sheet.getDataRange();
-		let values = range.getValues();
+		let emails = {};
 
-		values.slice(1).forEach((cells) => {
-			let [ref, docRef, desc, price, qty] = cells;
+		spreadsheet.getViewers().forEach((user) => {
+			emails[user.getEmail()] = "viewer";
+		});
+		spreadsheet.getEditors().forEach((user) => {
+			emails[user.getEmail()] = "editor";
+		});
+		emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-			let resultThird = { ref, desc, price, qty };
+		if (emails[email]) {
+			let resultSec = {};
 
-			if (key[ref]) {
-				warning.push(`duplicated invoice item ref '${ref}'`);
-			} else {
-				if (resultSec[docRef]) {
-					resultSec[docRef].items.push(resultThird);
+			let key = {};
+			let sheet = spreadsheet.getSheetByName("item");
+			let range = sheet.getDataRange();
+			let values = range.getValues();
+
+			values.slice(1).forEach((cells) => {
+				let [ref, docRef, desc, price, qty] = cells;
+
+				let resultThird = { ref, desc, price, qty };
+
+				if (key[ref]) {
+					warning.push(`duplicated invoice item ref '${ref}'`);
 				} else {
-					resultSec[docRef] = { items: [resultThird] };
+					if (resultSec[docRef]) {
+						resultSec[docRef].items.push(resultThird);
+					} else {
+						resultSec[docRef] = { items: [resultThird] };
+					}
 				}
-			}
-			key[ref] = true;
-		});
+				key[ref] = true;
+			});
 
-		sheet = spreadsheet.getSheetByName("doc");
-		range = sheet.getDataRange();
-		values = range.getValues();
+			sheet = spreadsheet.getSheetByName("doc");
+			range = sheet.getDataRange();
+			values = range.getValues();
 
-		values.slice(1).forEach((cells) => {
-			let [
-				ref,
-				docRef,
-				lang,
-				doc,
-				currency,
-				duedate,
-				vendorName,
-				vendorid,
-				vendorAddress,
-				clientid,
-				clientAddress,
-				totalAdjust,
-				vatRate,
-				whtRate,
-				paymethod,
-				subject,
-				note,
-			] = cells;
+			values.slice(1).forEach((cells) => {
+				let [
+					ref,
+					docRef,
+					lang,
+					doc,
+					currency,
+					duedate,
+					vendorName,
+					vendorid,
+					vendorAddress,
+					clientid,
+					clientAddress,
+					totalAdjust,
+					vatRate,
+					whtRate,
+					paymethod,
+					subject,
+					note,
+				] = cells;
 
-			duedate = duedate.toISOString().slice(0, 16);
+				duedate = duedate.toISOString().slice(0, 16);
 
-			let resultThird = {
-				ref,
-				lang,
-				doc,
-				currency,
-				duedate,
-				vendorName,
-				vendorid,
-				vendorAddress,
-				clientid,
-				clientAddress,
-				totalAdjust,
-				vatRate,
-				whtRate,
-				paymethod,
-				subject,
-				note,
-			};
+				let resultThird = {
+					ref,
+					lang,
+					doc,
+					currency,
+					duedate,
+					vendorName,
+					vendorid,
+					vendorAddress,
+					clientid,
+					clientAddress,
+					totalAdjust,
+					vatRate,
+					whtRate,
+					paymethod,
+					subject,
+					note,
+				};
 
-			if (result[docRef].invoice) {
-				warning.push(`duplicated invoice ref '${ref}'`);
-			} else {
-				result[docRef].invoice = { ...resultThird, ...resultSec[ref] };
-			}
-		});
+				if (result[docRef].invoice) {
+					warning.push(`duplicated invoice ref '${ref}'`);
+				} else {
+					result[docRef].invoice = { ...resultThird, ...resultSec[ref] };
+				}
+			});
+		}
 	});
 
 	result = Object.entries(result).map(([ref, { ...other }]) => {
@@ -201,7 +228,7 @@ const setData = (saves) => {
 };
 
 // https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec
-// https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme-Tdlv79YzU6aW9wRx694Q0Kd/dev
+// https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme--Tdlv79YzU6aW9wRx694Q0Kd/dev
 
 // https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json
 // https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme-Tdlv79YzU6aW9wRx694Q0Kd/dev?api=json

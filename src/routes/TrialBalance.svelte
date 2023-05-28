@@ -1,17 +1,10 @@
 <script>
-	import { subtotal, query } from "../lib/store";
+	import { subtotal } from "../lib/store";
 </script>
 
 <div class="px-2 pt-2">
 	<h1 class="mb-2 text-xl font-medium">Trial Balance</h1>
-	<label class="mb-2 mr-2 inline-flex items-center border">
-		<span class="mr-2">Start Date:</span>
-		<input class="" bind:value={$query.date.start} type="datetime-local" />
-	</label>
-	<label class="mb-2 mr-2 inline-flex items-center border">
-		<span class="mr-2">End Date:</span>
-		<input class="" bind:value={$query.date.end} type="datetime-local" />
-	</label>
+
 	<table class="table-auto">
 		<thead>
 			<tr>

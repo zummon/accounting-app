@@ -1,14 +1,31 @@
 <script>
 	import { onMount } from "svelte";
-	import { getData, names, accounts, refs, loading } from "./lib/store";
+	import {
+		getData,
+		names,
+		accounts,
+		refs,
+		loading,
+		query,
+		setData,
+		trans,
+	} from "./lib/store";
 	import Dashboard from "./routes/Dashboard.svelte";
 	import Entry from "./routes/Entry.svelte";
 	import TrialBalance from "./routes/TrialBalance.svelte";
 
 	let route = "/";
+	let ref = "";
+	let name = "";
+	let account = "";
+	let entry = { ledger: [{}] };
 
 	onMount(async () => {
 		await getData();
+
+		let index = $trans.length - 1;
+
+		entry = $trans[index];
 	});
 </script>
 
@@ -28,9 +45,9 @@
 	{/each}
 </datalist>
 
-<div class="flex flex-wrap justify-center gap-4 px-2 pt-4 print:hidden">
+<div class="flex flex-wrap justify-center gap-4 px-2 py-4 print:hidden">
 	<button
-		class="text-sky-500 disabled:text-gray-300"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
 		disabled={$loading}
 		on:click={async () => {
 			await getData();
@@ -52,19 +69,19 @@
 		</svg>
 	</button>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/";
 		}}>Home</button
 	>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/entry";
 		}}>Entry</button
 	>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/tb";
 		}}>Trial Balance</button
@@ -76,7 +93,7 @@
 		>Balance Sheet</a
 	> -->
 	<button
-		class="mb-2 text-sky-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			print();
 		}}
@@ -98,6 +115,134 @@
 	</button>
 </div>
 
+<div class="container mx-auto px-2 pb-4">
+	<span class="mb-2 mr-2 text-xl">Filter - Query</span>
+	<button
+		class="mb-2 mr-2 text-fuchsia-500 print:hidden"
+		on:click={() => {
+			$query.date.start = "";
+			$query.date.end = "";
+			$query.refs = [];
+			$query.names = [];
+			$query.accounts = [];
+			ref = "";
+			name = "";
+			account = "";
+		}}
+	>
+		Clear
+	</button>
+	<br />
+	<abbr class="no-underline" title={$query.date.start}>
+		<label class="mb-2 mr-2">
+			<span class="mr-2">Start date:</span>
+			<input
+				class="border-0 bg-transparent px-2 py-0.5"
+				type="datetime-local"
+				bind:value={$query.date.start}
+			/>
+		</label>
+	</abbr>
+	<br />
+	<abbr class="no-underline" title={$query.date.end}>
+		<label class="mb-2 mr-2">
+			<span class="mr-2">End date:</span>
+			<input
+				class="border-0 bg-transparent px-2 py-0.5"
+				type="datetime-local"
+				bind:value={$query.date.end}
+			/>
+		</label>
+	</abbr>
+	<br />
+	<label class="mb-2 mr-2" for="ref">
+		<span class="">Ref:</span>
+	</label>
+	{#each $query.refs as value, index (`query-ref-${index}`)}
+		<button
+			class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
+			on:click={() => {
+				$query.refs.splice(index, 1);
+				$query.refs = $query.refs;
+			}}
+		>
+			{value}
+		</button>
+	{/each}
+	<input
+		class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+		type="text"
+		list="refs"
+		id="ref"
+		placeholder="type.."
+		bind:value={ref}
+		on:change={() => {
+			if (ref && $query.refs.indexOf(ref) == -1) {
+				$query.refs = [...$query.refs, ref];
+				ref = "";
+			}
+		}}
+	/>
+	<br />
+	<label class="mb-2 mr-2" for="name">
+		<span class="mr-2">Name:</span>
+	</label>
+	{#each $query.names as value, index (`query-name-${index}`)}
+		<button
+			class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
+			on:click={() => {
+				$query.names.splice(index, 1);
+				$query.names = $query.names;
+			}}
+		>
+			{value}
+		</button>
+	{/each}
+	<input
+		class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+		type="text"
+		list="names"
+		id="name"
+		placeholder="type.."
+		bind:value={name}
+		on:change={() => {
+			if (name && $query.names.indexOf(name) == -1) {
+				$query.names = [...$query.names, name];
+				name = "";
+			}
+		}}
+	/>
+	<br />
+	<label class="mb-2 mr-2" for="account">
+		<span class="mr-2">Account:</span>
+	</label>
+	{#each $query.accounts as value, index (`query-account-${index}`)}
+		<button
+			class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
+			on:click={() => {
+				$query.accounts.splice(index, 1);
+				$query.accounts = $query.accounts;
+			}}
+		>
+			{value}
+		</button>
+	{/each}
+	<input
+		class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+		type="text"
+		list="accounts"
+		id="account"
+		placeholder="type.."
+		bind:value={account}
+		on:change={() => {
+			if (account && $query.accounts.indexOf(account) == -1) {
+				$query.accounts = [...$query.accounts, account];
+				account = "";
+			}
+		}}
+	/>
+</div>
+
 <div class="container mx-auto">
 	{#if route == "/entry"}
 		<Entry />
@@ -107,6 +252,144 @@
 		<Dashboard />
 	{/if}
 </div>
+
+<h1 class="mb-4 px-2 text-xl font-medium">Entry</h1>
+
+<div class="mb-4 flex gap-4 px-2">
+	<label class="">
+		<span class="block font-semibold">Ref:</span>
+		<input
+			class="w-16 rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+			type="text"
+			list="refs"
+			disabled
+			bind:value={entry.ref}
+		/>
+	</label>
+	<label class="">
+		<span class="block font-semibold">Date:</span>
+		<input
+			class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+			type="datetime-local"
+			bind:value={entry.date}
+		/>
+	</label>
+	<label class="">
+		<span class="block font-semibold">name:</span>
+		<input
+			class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+			type="text"
+			list="names"
+			bind:value={entry.name}
+		/>
+	</label>
+	<label class="">
+		<span class="block font-semibold">Description:</span>
+		<textarea
+			class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+			bind:value={entry.desc}
+		/>
+	</label>
+</div>
+<div class="">
+	<div class="">
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			on:click={() => {
+				entry.ledger = [{}, {}, ...entry.ledger];
+			}}
+		>
+			Add
+		</button>
+	</div>
+</div>
+<div class="">
+	<span class="mr-2 inline-flex font-semibold">Account:</span>
+	<span class="inline-flex font-semibold">Amount:</span>
+
+	{#each entry.ledger as { ref, account, amount }, index (`ledger-${index}`)}
+		<div class="">
+			<label class="">
+				<input
+					class="w-12 rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					type="text"
+					disabled
+					bind:value={ref}
+				/>
+			</label>
+			<label class="">
+				<input
+					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					type="text"
+					list="accounts"
+					bind:value={account}
+				/>
+			</label>
+			<label class="">
+				<input
+					class="rounded-md border-0 py-2 text-right text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					type="number"
+					bind:value={amount}
+				/>
+			</label>
+			<button
+				class="text-sky-500"
+				on:click={() => {
+					entry.ledger.splice(index, 1);
+					entry.ledger = entry.ledger;
+				}}
+			>
+				Delete
+			</button>
+		</div>
+	{/each}
+</div>
+<div class="">
+	<div class="text-center">
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+			disabled={$loading}
+			on:click={async () => {
+				await setData($trans);
+			}}
+		>
+			Add
+		</button>
+	</div>
+</div>
+
+<table class="my-4 w-full rounded-lg border">
+	<thead>
+		<tr>
+			<td class="border-b px-4 py-2">Date</td>
+			<td class="border-b px-4 py-2">Name</td>
+			<td class="border-b px-4 py-2">Description</td>
+		</tr>
+	</thead>
+	<tbody>
+		{#each $trans as { ref, date, name, desc }, index (`tran-${index}`)}
+			<tr
+				class="cursor-pointer {index % 2 ? '' : 'bg-gray-50'}"
+				on:click={() => {
+					entry = $trans[index];
+				}}
+			>
+				<td class="border-b px-4 py-2">{new Date(date).toDateString()}</td>
+				<td class="border-b px-4 py-2">{name}</td>
+				<td class="border-b px-4 py-2">
+					{desc}
+				</td>
+			</tr>
+		{/each}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td class="px-4 py-2" />
+			<td class="px-4 py-2" />
+			<td class="px-4 py-2" />
+		</tr>
+	</tfoot>
+</table>
 
 <a
 	href="https://zummon.page/"
