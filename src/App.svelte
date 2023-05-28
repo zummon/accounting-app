@@ -1,37 +1,14 @@
 <script>
 	import { onMount } from "svelte";
-	import { trans, names, accounts, refs } from "./lib/store";
+	import { getData, names, accounts, refs, loading } from "./lib/store";
 	import Dashboard from "./routes/Dashboard.svelte";
 	import Entry from "./routes/Entry.svelte";
 	import TrialBalance from "./routes/TrialBalance.svelte";
 
-	let gettingTrans = false;
 	let route = "/";
 
-	const getTrans = async () => {
-		if (window.google) {
-			google.script.run
-				.withSuccessHandler((result) => {
-					result = JSON.parse(result);
-					$trans = result.data;
-				})
-				.withFailureHandler((err) => {})
-				.getData();
-		} else {
-			await fetch(
-				"https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json"
-			)
-				.then((res) => {
-					return res.json();
-				})
-				.then((json) => {
-					$trans = json.data;
-				});
-		}
-	};
-
 	onMount(async () => {
-		await getTrans();
+		await getData();
 	});
 </script>
 
@@ -51,15 +28,12 @@
 	{/each}
 </datalist>
 
-<div class="flex flex-wrap justify-center px-2 pt-4 print:hidden">
+<div class="flex flex-wrap justify-center gap-4 px-2 pt-4 print:hidden">
 	<button
-		class="mb-4 mr-4 text-sky-500 disabled:text-gray-300"
-		disabled={gettingTrans}
+		class="text-sky-500 disabled:text-gray-300"
+		disabled={$loading}
 		on:click={async () => {
-			gettingTrans = true;
-			await getTrans().then(() => {
-				gettingTrans = false;
-			});
+			await getData();
 		}}
 	>
 		<svg
@@ -78,19 +52,19 @@
 		</svg>
 	</button>
 	<button
-		class="mb-4 mr-4 text-sky-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
 		on:click={() => {
 			route = "/";
 		}}>Home</button
 	>
 	<button
-		class="mb-4 mr-4 text-sky-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
 		on:click={() => {
 			route = "/entry";
 		}}>Entry</button
 	>
 	<button
-		class="mb-4 mr-4 text-sky-500"
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500"
 		on:click={() => {
 			route = "/tb";
 		}}>Trial Balance</button

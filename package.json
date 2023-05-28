@@ -2,8 +2,8 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"start": "",
-		"build": "vite build && npm run push",
+		"start": "npm run build && npm run push",
+		"build": "vite build",
 		"login": "clasp login",
 		"logout": "clasp logout",
 		"pull": "clasp pull",

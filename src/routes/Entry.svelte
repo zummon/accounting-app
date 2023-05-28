@@ -1,26 +1,8 @@
 <script>
-	import { trans } from "../lib/store";
+	import { trans, setData } from "../lib/store";
 	import { onMount } from "svelte";
 
 	let entry = { ledger: [{}] };
-
-	const setEntry = async () => {
-		if (window.google) {
-			google.script.run
-				.withSuccessHandler((array) => {})
-				.withFailureHandler((err) => {})
-				.setData(JSON.stringify([entry]));
-		} else {
-			await fetch(
-				"https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json",
-				{
-					mode: "no-cors",
-					method: "POST",
-					body: { data: JSON.stringify([entry]) },
-				}
-			);
-		}
-	};
 
 	onMount(async () => {
 		let index = $trans.length - 1;
@@ -105,7 +87,7 @@
 		<button
 			class="text-sky-500"
 			on:click={async () => {
-				await setEntry();
+				await setData();
 			}}
 		>
 			Add
