@@ -18,14 +18,9 @@
 	let ref = "";
 	let name = "";
 	let account = "";
-	let entry = { ledger: [{}] };
 
 	onMount(async () => {
 		await getData();
-
-		let index = $trans.length - 1;
-
-		entry = $trans[index];
 	});
 </script>
 
@@ -270,33 +265,33 @@
 					<span class="mr-2 inline-flex font-semibold">Account:</span>
 					<span class="inline-flex font-semibold">Amount:</span>
 
-					{#each entry.ledger as { ref, account, amount }, index (`ledger-${index}`)}
+					{#each tran.ledger as item, index (`ledger-${index}`)}
 						<div class="">
 							<label class="">
 								<input
 									class="w-12 rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
 									type="text"
 									disabled
-									bind:value={ref} />
+									bind:value={item.ref} />
 							</label>
 							<label class="">
 								<input
 									class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
 									type="text"
 									list="accounts"
-									bind:value={account} />
+									bind:value={item.account} />
 							</label>
 							<label class="">
 								<input
 									class="rounded-md border-0 py-2 text-right text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
 									type="number"
-									bind:value={amount} />
+									bind:value={item.amount} />
 							</label>
 							<button
 								class="text-sky-500"
 								on:click={() => {
-									entry.ledger.splice(index, 1);
-									entry.ledger = entry.ledger;
+									tran.ledger.splice(index, 1);
+									tran.ledger = tran.ledger;
 								}}>
 								Delete
 							</button>
@@ -306,7 +301,7 @@
 						<button
 							class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 							on:click={() => {
-								entry.ledger = [{}, {}, ...entry.ledger];
+								tran.ledger = [{}, {}, ...tran.ledger];
 							}}>
 							Add
 						</button>
