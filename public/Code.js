@@ -176,6 +176,8 @@ const getData = () => {
 };
 
 const setData = (saves) => {
+	const email = Session.getActiveUser().getEmail();
+
 	let warning = [];
 
 	saves = JSON.parse(saves);
@@ -186,40 +188,52 @@ const setData = (saves) => {
 		sourceUrls.forEach((url) => {
 			const spreadsheet = SpreadsheetApp.openByUrl(url);
 
-			if (date) {
-				let sheet = spreadsheet.getSheetByName("doc");
-				let lastRow = sheet.getLastRow();
-				let range = sheet.getRange(2, 1, lastRow - 1);
-				let refs = range.getValues().map(([value]) => value);
-				let index = refs.indexOf(ref);
+			let emails = {};
 
-				let resultSec = [ref, date, name, desc];
+			spreadsheet.getViewers().forEach((user) => {
+				emails[user.getEmail()] = "viewer";
+			});
+			spreadsheet.getEditors().forEach((user) => {
+				emails[user.getEmail()] = "editor";
+			});
+			emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-				if (index >= 0) {
-					sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
-				} else {
-					sheet.appendRow(resultSec);
-				}
-			}
+			if (emails[email]) {
+				if (date) {
+					let sheet = spreadsheet.getSheetByName("doc");
+					let lastRow = sheet.getLastRow();
+					let range = sheet.getRange(2, 1, lastRow - 1);
+					let refs = range.getValues().map(([value]) => value);
+					let index = refs.indexOf(ref);
 
-			if (ledger) {
-				let sheet = spreadsheet.getSheetByName("ledger");
-				let lastRow = sheet.getLastRow();
-				let range = sheet.getRange(2, 1, lastRow - 1);
-				let refs = range.getValues().map(([value]) => value);
-
-				ledger.forEach((obj) => {
-					let index = refs.indexOf(obj.ref);
-					let { account, amount } = obj;
-
-					let resultSec = [obj.ref, ref, account, amount];
+					let resultSec = [ref, date, name, desc];
 
 					if (index >= 0) {
 						sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
 					} else {
 						sheet.appendRow(resultSec);
 					}
-				});
+				}
+
+				if (ledger) {
+					let sheet = spreadsheet.getSheetByName("ledger");
+					let lastRow = sheet.getLastRow();
+					let range = sheet.getRange(2, 1, lastRow - 1);
+					let refs = range.getValues().map(([value]) => value);
+
+					ledger.forEach((obj) => {
+						let index = refs.indexOf(obj.ref);
+						let { account, amount } = obj;
+
+						let resultSec = [obj.ref, ref, account, amount];
+
+						if (index >= 0) {
+							sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
+						} else {
+							sheet.appendRow(resultSec);
+						}
+					});
+				}
 			}
 		});
 	});
