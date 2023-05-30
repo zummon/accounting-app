@@ -8,32 +8,32 @@
 
 	let grouptotal = {};
 
-	$: {
-		grouptotal = {};
-		Object.entries($subtotal).forEach(([key, value]) => {
-			let group = Number(key.charAt(0));
-			let groupName = ["Asset", "Liability", `Owner's equity`, "Revenue"][
-				group - 1
-			];
+	// $: {
+	// 	grouptotal = {};
+	// 	Object.entries($subtotal).forEach(([key, value]) => {
+	// 		let group = Number(key.charAt(0));
+	// 		let groupName = ["Asset", "Liability", `Owner's equity`, "Revenue"][
+	// 			group - 1
+	// 		];
 
-			if (group >= 2 && group <= 4) {
-				value = -value;
-			}
-			if (group >= 5) {
-				groupName = "Expense";
-			}
+	// 		if (group >= 2 && group <= 4) {
+	// 			value = -value;
+	// 		}
+	// 		if (group >= 5) {
+	// 			groupName = "Expense";
+	// 		}
 
-			if (grouptotal[groupName]) {
-				grouptotal[groupName] += value;
-			} else {
-				grouptotal[groupName] = value;
-			}
-		});
+	// 		if (grouptotal[groupName]) {
+	// 			grouptotal[groupName] += value;
+	// 		} else {
+	// 			grouptotal[groupName] = value;
+	// 		}
+	// 	});
 
-		// accountType <= 1
-		// accountType >= 2
-		// accountType >= 5
-	}
+	// accountType <= 1
+	// accountType >= 2
+	// accountType >= 5
+	// }
 
 	// const updateChart = () => {
 	// 	if (chartCanvas) chartCanvas.destroy()
@@ -63,7 +63,7 @@
 	<canvas id="chart"></canvas>
 </div> -->
 
-<div class="px-2 pb-4">
+<!-- <div class="px-2 pb-4">
 	<table class="">
 		<thead class="border-b">
 			<tr>
@@ -79,11 +79,11 @@
 				</tr>
 			{/each}
 		</tbody>
-		<!-- <tfoot class="">
+		<tfoot class="">
       <tr>
         <td class="px-2 py-2">Balance</td>
         <td class="px-2 py-2 text-right">0</td>
       </tr>
-    </tfoot> -->
+    </tfoot>
 	</table>
-</div>
+</div> -->

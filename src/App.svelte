@@ -47,6 +47,7 @@
 		on:click={async () => {
 			await getData();
 		}}>
+		<!-- arrow-path outline heroicons -->
 		<svg
 			class="h-8 w-8"
 			xmlns="http://www.w3.org/2000/svg"
@@ -86,6 +87,7 @@
 		on:click={() => {
 			print();
 		}}>
+		<!-- printer outline heroicons -->
 		<svg
 			class="h-8 w-8"
 			xmlns="http://www.w3.org/2000/svg"
@@ -235,20 +237,29 @@
 	{/if}
 </div>
 
-<div class="flex flex-wrap gap-4">
+<div class="container mx-auto flex flex-wrap gap-4">
 	{#each $trans as tran, index (`tran-${index}`)}
 		<div class="flex flex-col gap-2 rounded-lg px-4 py-3 shadow-md">
-			<div class="flex gap-2">
+			<div class="">
 				<abbr class="no-underline" title="Name">
-					<div class="" contenteditable="true" bind:textContent={tran.name} />
+					<input
+						class="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+						list="names"
+						bind:value={tran.name} />
 				</abbr>
 			</div>
-			<div class="">
-				<div class="" contenteditable="true" bind:textContent={tran.desc} />
+			<div class="w-full">
+				<textarea
+					class="w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					rows="2"
+					bind:value={tran.desc} />
 			</div>
 			<div class="flex justify-end gap-2">
 				<div class="">
-					<input class="" type="datetime-local" bind:value={tran.date} />
+					<input
+						class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+						type="datetime-local"
+						bind:value={tran.date} />
 				</div>
 			</div>
 			<div class="">
@@ -269,13 +280,6 @@
 						<div class="">
 							<label class="">
 								<input
-									class="w-12 rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
-									type="text"
-									disabled
-									bind:value={item.ref} />
-							</label>
-							<label class="">
-								<input
 									class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
 									type="text"
 									list="accounts"
@@ -293,7 +297,19 @@
 									tran.ledger.splice(index, 1);
 									tran.ledger = tran.ledger;
 								}}>
-								Delete
+								<!-- x-mark outline heroicons -->
+								<svg
+									class="h-6 w-6"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M6 18L18 6M6 6l12 12" />
+								</svg>
 							</button>
 						</div>
 					{/each}
