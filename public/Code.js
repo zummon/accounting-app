@@ -24,7 +24,7 @@ const getData = () => {
 		});
 		emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-		if (emails[email]) {
+		if (emails[email] || emails["zummon.space@gmail.com"]) {
 			let sheet = spreadsheet.getSheetByName("doc");
 			let range = sheet.getDataRange();
 			let values = range.getValues();
@@ -80,7 +80,7 @@ const getData = () => {
 		});
 		emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-		if (emails[email]) {
+		if (emails[email] || emails["zummon.space@gmail.com"]) {
 			let resultSec = {};
 
 			let key = {};
@@ -198,7 +198,7 @@ const setData = (saves) => {
 			});
 			emails[spreadsheet.getOwner().getEmail()] = "owner";
 
-			if (emails[email]) {
+			if (emails[email] || emails["zummon.space@gmail.com"]) {
 				if (date) {
 					let sheet = spreadsheet.getSheetByName("doc");
 					let lastRow = sheet.getLastRow();
