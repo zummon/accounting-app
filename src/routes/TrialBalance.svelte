@@ -17,8 +17,8 @@
 			{#each Object.entries($subtotal) as [key, value], index (`item-${index}`)}
 				<tr class="">
 					<td class="border-b pr-2 pt-2">{key}</td>
-					<td class="border-b pr-2 pt-2 text-right">{value > 0 ? value : ""}</td
-					>
+					<td class="border-b pr-2 pt-2 text-right"
+						>{value > 0 ? value : ""}</td>
 					<td class="border-b pt-2 text-right">{value < 0 ? -value : ""}</td>
 				</tr>
 			{/each}
