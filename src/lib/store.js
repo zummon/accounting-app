@@ -7,6 +7,7 @@ export const getData = async () => {
 			result = JSON.parse(result);
 			trans.set(result.data);
 			date.set(result.date);
+			warnings.set(result.warning);
 			loading.set(false);
 		})
 		.withFailureHandler((error) => {})
@@ -23,31 +24,11 @@ export const setData = async (data) => {
 		.setData(data);
 };
 
-export const filterTrans = () => {
-	let result = {};
-
-	$trans.forEach(({ ref, date, name, ledger }) => {
-		if (date <= $query.date.end || $query.date.end == "") {
-			ledger.forEach(({ account, amount }) => {
-				const group = Number(account.charAt(0));
-
-				if (date < $query.date.start) {
-					if (group >= 4) {
-						account = "3 Generated retained earnings";
-					}
-				}
-			});
-		}
-	});
-
-	return result;
-};
-
 export const date = writable("");
 
 export const loading = writable(false);
 
-export const warning = writable([]);
+export const warnings = writable([]);
 
 export const trans = writable([]);
 
@@ -58,57 +39,74 @@ export const query = writable({
 	accounts: [],
 });
 
-export const subtotal = derived([trans, query], ([$trans, $query]) => {
-	let result = {};
+export const filterTrans = derived([trans, query], ([$trans, $query]) => {
+	let result = [];
 
-	$trans.forEach(({ ref, date, name, ledger }) => {
-		if (date <= $query.date.end || $query.date.end == "") {
-			ledger.forEach(({ account, amount }) => {
-				const group = Number(account.charAt(0));
+	$trans.forEach((item) => {
+		if ($query.names.includes(item.name) || $query.names.length == 0) {
+			let resultSec = { ...item, ledger: [] };
 
-				if (date < $query.date.start) {
-					if (group >= 4) {
-						account = "3 Generated retained earnings";
+			if (item.date <= $query.date.end || $query.date.end == "") {
+				item.ledger.forEach((itemSec) => {
+					const group = Number(itemSec.account.charAt(0));
+
+					if (item.date < $query.date.start) {
+						if (group >= 4) {
+							itemSec.account = "3 Generated retained earnings";
+						}
 					}
-				}
 
-				if (result[account]) {
-					result[account] += amount;
-				} else {
-					result[account] = amount;
-				}
-			});
+					resultSec.ledger.push(itemSec);
+				});
+			}
+
+			result.push(resultSec);
 		}
 	});
 
 	$query.accounts;
 	$query.refs;
-	$query.names;
+
+	return result;
+});
+
+export const subtotal = derived(filterTrans, ($filterTrans) => {
+	let result = {};
+
+	$filterTrans.forEach((item) => {
+		item.ledger.forEach((itemSec) => {
+			if (result[itemSec.account]) {
+				result[itemSec.account] += itemSec.amount;
+			} else {
+				result[itemSec.account] = itemSec.amount;
+			}
+		});
+	});
 
 	return result;
 });
 
 export const refs = derived(trans, ($trans) => {
 	let result = {};
-	$trans.forEach(({ ref }) => {
-		result[ref] = true;
+	$trans.forEach((item) => {
+		result[item.ref] = true;
 	});
 	return Object.keys(result).sort();
 });
 
 export const names = derived(trans, ($trans) => {
 	let result = {};
-	$trans.forEach(({ name }) => {
-		result[name] = true;
+	$trans.forEach((item) => {
+		result[item.name] = true;
 	});
 	return Object.keys(result).sort();
 });
 
 export const accounts = derived(trans, ($trans) => {
 	let result = {};
-	$trans.forEach(({ ledger }) => {
-		ledger.forEach(({ account }) => {
-			result[account] = true;
+	$trans.forEach((item) => {
+		item.ledger.forEach((itemSec) => {
+			result[itemSec.account] = true;
 		});
 	});
 	return Object.keys(result).sort();
