@@ -115,7 +115,7 @@
 			<label class="mb-2 mr-2">
 				<span class="mr-2">Start date:</span>
 				<input
-					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 					type="datetime-local"
 					bind:value={$query.date.start} />
 			</label>
@@ -124,14 +124,13 @@
 			<label class="mb-2 mr-2">
 				<span class="mr-2">End date:</span>
 				<input
-					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 					type="datetime-local"
 					bind:value={$query.date.end} />
 			</label>
 		</abbr>
 	</div>
-	<div
-		class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500">
+	<div class="">
 		<label class="mb-2 mr-2" for="ref">
 			<span class="">Ref:</span>
 		</label>
@@ -146,7 +145,7 @@
 			</button>
 		{/each}
 		<input
-			class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
 			type="text"
 			list="refs"
 			id="ref"
@@ -159,8 +158,7 @@
 				}
 			}} />
 	</div>
-	<div
-		class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500">
+	<div class="">
 		<label class="mb-2 mr-2" for="name">
 			<span class="mr-2">Name:</span>
 		</label>
@@ -175,7 +173,7 @@
 			</button>
 		{/each}
 		<input
-			class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
 			type="text"
 			list="names"
 			id="name"
@@ -188,8 +186,7 @@
 				}
 			}} />
 	</div>
-	<div
-		class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500">
+	<div class="">
 		<label class="mb-2 mr-2" for="account">
 			<span class="mr-2">Account:</span>
 		</label>
@@ -204,7 +201,7 @@
 			</button>
 		{/each}
 		<input
-			class="border-0 bg-transparent px-2 py-0.5 print:hidden"
+			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
 			type="text"
 			list="accounts"
 			id="account"

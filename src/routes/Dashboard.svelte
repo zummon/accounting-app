@@ -94,21 +94,21 @@
 			<div class="">
 				<abbr class="no-underline" title="Name">
 					<input
-						class="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+						class="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 						list="names"
 						bind:value={tran.name} />
 				</abbr>
 			</div>
 			<div class="w-full">
 				<textarea
-					class="w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+					class="w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 					rows="2"
 					bind:value={tran.desc} />
 			</div>
 			<div class="flex justify-end gap-2">
 				<div class="">
 					<input
-						class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+						class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 						type="datetime-local"
 						bind:value={tran.date} />
 				</div>
@@ -131,14 +131,14 @@
 						<div class="">
 							<label class="">
 								<input
-									class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+									class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 									type="text"
 									list="accounts"
 									bind:value={item.account} />
 							</label>
 							<label class="">
 								<input
-									class="rounded-md border-0 py-2 text-right text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-500"
+									class="rounded-md border-0 py-2 text-right text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 									type="number"
 									bind:value={item.amount} />
 							</label>
