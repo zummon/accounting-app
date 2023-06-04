@@ -8,6 +8,7 @@ export const getData = async () => {
 			trans.set(result.data);
 			date.set(result.date);
 			warnings.set(result.warning);
+			dataset.set(result.dataset);
 			loading.set(false);
 		})
 		.withFailureHandler((error) => {})
@@ -18,7 +19,7 @@ export const setData = async (data) => {
 	data = JSON.stringify(data);
 	google.script.run
 		.withSuccessHandler(async (result) => {
-			await getData();
+			// await getData();
 		})
 		.withFailureHandler((error) => {})
 		.setData(data);
@@ -31,6 +32,8 @@ export const loading = writable(false);
 export const warnings = writable([]);
 
 export const trans = writable([]);
+
+export const dataset = writable({});
 
 export const query = writable({
 	date: { start: "", end: "" },

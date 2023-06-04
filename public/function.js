@@ -1,30 +1,19 @@
-const sourceUrls = [
-	"https://docs.google.com/spreadsheets/d/1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs/edit#gid=0",
-];
-const invoiceUrls = [
-	"https://docs.google.com/spreadsheets/d/1fFGmZnAJjNvyuF8gC-KuvGKmwj4OtpDu07abKh2i2As/edit#gid=0",
-];
-
 const getData = () => {
-	const email = Session.getActiveUser().getEmail();
+	const user = Session.getActiveUser();
 
 	let result = {};
 	let warning = [];
+	let dataset = {};
+	let date = new Date().toJSON();
 
-	sourceUrls.forEach((url) => {
-		const spreadsheet = SpreadsheetApp.openByUrl(url);
+	databaseid[""].forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+		const driveFile = DriveApp.getFileById(id);
 
-		let emails = {};
+		let fileAccess = driveFile.getAccess(user);
+		let fileShare = driveFile.getSharingAccess();
 
-		spreadsheet.getViewers().forEach((user) => {
-			emails[user.getEmail()] = "viewer";
-		});
-		spreadsheet.getEditors().forEach((user) => {
-			emails[user.getEmail()] = "editor";
-		});
-		emails[spreadsheet.getOwner().getEmail()] = "owner";
-
-		if (emails[email] || emails["zummon.space@gmail.com"]) {
+		if (fileAccess !== "NONE" || fileShare.startsWith("ANYONE")) {
 			let sheet = spreadsheet.getSheetByName("doc");
 			let range = sheet.getDataRange();
 			let values = range.getValues();
@@ -67,20 +56,14 @@ const getData = () => {
 		}
 	});
 
-	invoiceUrls.forEach((url) => {
-		const spreadsheet = SpreadsheetApp.openByUrl(url);
+	databaseid.invoice.forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+		const driveFile = DriveApp.getFileById(id);
 
-		let emails = {};
+		let fileAccess = driveFile.getAccess(user);
+		let fileShare = driveFile.getSharingAccess();
 
-		spreadsheet.getViewers().forEach((user) => {
-			emails[user.getEmail()] = "viewer";
-		});
-		spreadsheet.getEditors().forEach((user) => {
-			emails[user.getEmail()] = "editor";
-		});
-		emails[spreadsheet.getOwner().getEmail()] = "owner";
-
-		if (emails[email] || emails["zummon.space@gmail.com"]) {
+		if (fileAccess !== "NONE" || fileShare.startsWith("ANYONE")) {
 			let resultSec = {};
 
 			let key = {};
@@ -160,15 +143,25 @@ const getData = () => {
 		}
 	});
 
-	result = Object.entries(result).map(([ref, { ...other }]) => {
-		return { ref, ...other };
+	result = Object.entries(result).map(([ref, obj]) => {
+		return { ref, ...obj };
 	});
 
-	console.log(JSON.stringify(result[0]));
+	dataset.account = [];
+	datasetid.account.forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
 
-	result = { date: new Date().toJSON(), warning, data: result };
+		let sheet = spreadsheet.getSheets()[0];
+		let values = sheet.getDataRange().getValues();
 
-	result = JSON.stringify(result);
+		values.slice(1).forEach((cells) => {
+			let [account, note, group, groupSec] = cells;
+
+			dataset.account.push({ account, note, group, groupSec });
+		});
+	});
+
+	result = JSON.stringify({ data: result, date, warning, dataset });
 
 	console.log(result);
 
@@ -176,7 +169,7 @@ const getData = () => {
 };
 
 const setData = (saves) => {
-	const email = Session.getActiveUser().getEmail();
+	const user = Session.getActiveUser();
 
 	let warning = [];
 
@@ -185,20 +178,13 @@ const setData = (saves) => {
 	saves.forEach((save) => {
 		let { ref, date, name, desc, ledger } = save;
 
-		sourceUrls.forEach((url) => {
-			const spreadsheet = SpreadsheetApp.openByUrl(url);
+		databaseid[""].forEach((id) => {
+			const spreadsheet = SpreadsheetApp.openById(id);
+			const driveFile = DriveApp.getFileById(id);
 
-			let emails = {};
+			let fileAccess = driveFile.getAccess(user);
 
-			spreadsheet.getViewers().forEach((user) => {
-				emails[user.getEmail()] = "viewer";
-			});
-			spreadsheet.getEditors().forEach((user) => {
-				emails[user.getEmail()] = "editor";
-			});
-			emails[spreadsheet.getOwner().getEmail()] = "owner";
-
-			if (emails[email] || emails["zummon.space@gmail.com"]) {
+			if (["OWNER", "EDIT"].includes(fileAccess)) {
 				if (date) {
 					let sheet = spreadsheet.getSheetByName("doc");
 					let lastRow = sheet.getLastRow();
@@ -238,30 +224,7 @@ const setData = (saves) => {
 		});
 	});
 
-	return { date: new Date().toJSON(), warning };
+	let date = new Date().toJSON();
+
+	return { date, warning };
 };
-
-// https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec
-// https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme-Tdlv79YzU6aW9wRx694Q0Kd/dev
-
-// https://script.google.com/macros/s/AKfycbyI1zS_-2zAga9_KQ-EiRUEr9mvA0l-WFixe8sPD1HzpGl42xCC7N45gZMPhDjf-zS8ew/exec?api=json
-// https://script.google.com/macros/s/AKfycbx2QVrLDxaneu3yNIme-Tdlv79YzU6aW9wRx694Q0Kd/dev?api=json
-
-const doGet = (e) => {
-	if (e.parameter.api == "json") {
-		let data = getData();
-		let text = ContentService.createTextOutput(data);
-		let json = text.setMimeType(ContentService.MimeType.JSON);
-		return json;
-	}
-
-	let template = HtmlService.createTemplateFromFile("index");
-	let html = template.evaluate();
-	return html;
-};
-
-// const doPost = (e) => {
-// 	let respond = setData(e.body.data);
-
-// 	return respond;
-// };

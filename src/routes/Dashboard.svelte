@@ -2,9 +2,9 @@
 	import { subtotal } from "../lib/store";
 	import { accountGroup } from "../lib/dataset";
 	import { onMount } from "svelte";
-	import chartjs from "chart.js/auto";
+	import ChartJs from "chart.js/auto";
 
-	let ctx;
+	let chartContext;
 	let chartCanvas;
 
 	let grouptotal = {};
@@ -32,45 +32,44 @@
 
 		console.log(grouptotal);
 
-		// if (ctx) {
-		updateChart();
-		// }
+		if (grouptotal["Assets"]) {
+			// updateChart();
+		}
 	}
 
 	const updateChart = () => {
-		// if (chartCanvas) chartCanvas.destroy();
-		// ctx = document.getElementById("chart");
-		// new chartjs(ctx, {
-		// 	type: "doughnut",
-		// 	data: {
-		// 		labels: Object.keys(grouptotal),
-		// 		datasets: [
-		// 			{
-		// 				data: Object.values(grouptotal),
-		// 				backgroundColor: [
-		// 					"rgb(255, 105, 96)",
-		// 					"rgb(255, 142, 0)",
-		// 					"rgb(255, 187, 51)",
-		// 					"rgb(255, 223, 102)",
-		// 					"rgb(255, 255, 153)",
-		// 				],
-		// 			},
-		// 		],
-		// 	},
-		// });
+		if (chartCanvas) chartCanvas.destroy();
+		new ChartJs(chartContext, {
+			type: "doughnut",
+			data: {
+				labels: Object.keys(grouptotal),
+				datasets: [
+					{
+						data: Object.values(grouptotal),
+						backgroundColor: [
+							"rgb(255, 105, 96)",
+							"rgb(255, 142, 0)",
+							"rgb(255, 187, 51)",
+							"rgb(255, 223, 102)",
+							"rgb(255, 255, 153)",
+						],
+					},
+				],
+			},
+		});
 	};
 
 	onMount(async () => {
-		// updateChart();
+		updateChart();
 	});
 </script>
 
-<!-- <div class="flex flex-wrap px-2 pb-4">
+<div class="flex flex-wrap px-2 pb-4">
 	<div class="aspect-video w-full lg:w-1/2">
-		<canvas id="chart" />
+		<canvas class="" bind:this={chartContext} />
 	</div>
 	<div class="w-full lg:w-1/2" />
-</div> -->
+</div>
 
 <div class="px-2 pb-4">
 	<table class="">
