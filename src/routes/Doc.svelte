@@ -1,4 +1,5 @@
 <script>
+	import { each } from "svelte/internal";
 	import { filterTrans } from "../lib/store";
 </script>
 
@@ -34,6 +35,10 @@
 						<td class="border-b px-4 py-2">{itemSec.account}</td>
 						<td class="border-b px-4 py-2 text-right" />
 						<td class="border-b px-4 py-2 text-right">{-itemSec.amount}</td>
+					{:else}
+						<td class="border-b px-4 py-2" colspan="2" />
+						<td class="border-b px-4 py-2 text-right" />
+						<td class="border-b px-4 py-2 text-right" />
 					{/if}
 				</tr>
 			{/each}
