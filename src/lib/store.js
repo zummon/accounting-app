@@ -17,8 +17,8 @@ export const getData = async () => {
 export const setData = async (data) => {
 	data = JSON.stringify(data);
 	google.script.run
-		.withSuccessHandler((result) => {
-			getData();
+		.withSuccessHandler(async (result) => {
+			await getData();
 		})
 		.withFailureHandler((error) => {})
 		.setData(data);

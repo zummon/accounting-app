@@ -2,10 +2,10 @@
 	import { subtotal } from "../lib/store";
 	import { accountGroup } from "../lib/dataset";
 	import { onMount } from "svelte";
-	// import chartjs from 'chart.js/auto';
+	import chartjs from "chart.js/auto";
 
-	// let ctx;
-	// let chartCanvas;
+	let ctx;
+	let chartCanvas;
 
 	let grouptotal = {};
 
@@ -29,34 +29,47 @@
 		// accountType <= 1;
 		// accountType >= 2;
 		// accountType >= 5;
+
+		console.log(grouptotal);
+
+		// if (ctx) {
+		updateChart();
+		// }
 	}
 
-	// const updateChart = () => {
-	// 	if (chartCanvas) chartCanvas.destroy()
-	// 	ctx = document.getElementById('chart');
-	// 	new chartjs(ctx, {
-	// 		type: 'doughnut',
-	// 		data: {
-	// 			labels: Object.keys($subtotal),
-	// 			datasets: [{
-	// 				data: Object.values($subtotal),
-	// 				backgroundColor: [
-	// 					"rgb(255, 105, 96)",
-	// 					"rgb(255, 142, 0)",
-	// 					"rgb(255, 187, 51)",
-	// 					"rgb(255, 223, 102)",
-	// 					"rgb(255, 255, 153)"
-	// 				],
-	// 			}]
-	// 		}
-	// 	});
-	// }
+	const updateChart = () => {
+		// if (chartCanvas) chartCanvas.destroy();
+		// ctx = document.getElementById("chart");
+		// new chartjs(ctx, {
+		// 	type: "doughnut",
+		// 	data: {
+		// 		labels: Object.keys(grouptotal),
+		// 		datasets: [
+		// 			{
+		// 				data: Object.values(grouptotal),
+		// 				backgroundColor: [
+		// 					"rgb(255, 105, 96)",
+		// 					"rgb(255, 142, 0)",
+		// 					"rgb(255, 187, 51)",
+		// 					"rgb(255, 223, 102)",
+		// 					"rgb(255, 255, 153)",
+		// 				],
+		// 			},
+		// 		],
+		// 	},
+		// });
+	};
 
-	onMount(async () => {});
+	onMount(async () => {
+		// updateChart();
+	});
 </script>
 
-<!-- <div class="px-2 pb-4">
-	<canvas id="chart"></canvas>
+<!-- <div class="flex flex-wrap px-2 pb-4">
+	<div class="aspect-video w-full lg:w-1/2">
+		<canvas id="chart" />
+	</div>
+	<div class="w-full lg:w-1/2" />
 </div> -->
 
 <div class="px-2 pb-4">
