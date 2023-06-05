@@ -155,9 +155,9 @@ const getData = () => {
 		let values = sheet.getDataRange().getValues();
 
 		values.slice(1).forEach((cells) => {
-			let [account, note, group, groupSec] = cells;
+			let [account, note, group, groupSec, groupThird] = cells;
 
-			dataset.account[account] = { note, group, groupSec };
+			dataset.account[account] = { note, group, groupSec, groupThird };
 		});
 	});
 

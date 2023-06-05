@@ -1,4 +1,5 @@
 <script>
+	import "chart.js/auto";
 	import { onMount } from "svelte";
 	import {
 		getData,
@@ -9,17 +10,78 @@
 		query,
 		date,
 		warnings,
+		trans,
+		subtotal,
+		setData,
 	} from "./lib/store";
-	import Dashboard from "./routes/Dashboard.svelte";
-	import Entry from "./routes/Entry.svelte";
 	import TrialBalance from "./routes/TrialBalance.svelte";
 	import Doc from "./routes/Doc.svelte";
 	import ExportGl from "./routes/ExportGL.svelte";
+	import { Doughnut } from "svelte-chartjs";
+	import { accountGroup } from "./lib/dataset";
+	import { v4 as uuidv4 } from "uuid";
 
+	let tran = {};
 	let route = "/";
 	let ref = "";
 	let name = "";
+	let grouptotal = {};
 	let account = "";
+	let tbdata = {
+		labels: ["Red", "Green", "Yellow", "Grey", "Dark Grey"],
+		datasets: [
+			{
+				data: [300, 50, 100, 40, 120],
+				backgroundColor: [
+					"#F7464A",
+					"#46BFBD",
+					"#FDB45C",
+					"#949FB1",
+					"#4D5360",
+				],
+				hoverBackgroundColor: [
+					"#FF5A5E",
+					"#5AD3D1",
+					"#FFC870",
+					"#A8B3C5",
+					"#616774",
+				],
+			},
+		],
+	};
+
+	$: {
+		grouptotal = {};
+		Object.entries($subtotal).forEach(([key, value]) => {
+			let group = Number(key.charAt(0));
+			let groupName = accountGroup[group];
+
+			if (group >= 2 && group <= 4) {
+				value = -value;
+			}
+
+			if (grouptotal[groupName]) {
+				grouptotal[groupName] += value;
+			} else {
+				grouptotal[groupName] = value;
+			}
+		});
+		tbdata = {
+			labels: Object.keys(grouptotal),
+			datasets: [
+				{
+					data: Object.values(grouptotal),
+					backgroundColor: [
+						"rgb(255, 105, 96)",
+						"rgb(255, 142, 0)",
+						"rgb(255, 187, 51)",
+						"rgb(255, 223, 102)",
+						"rgb(255, 255, 153)",
+					],
+				},
+			],
+		};
+	}
 
 	onMount(async () => {
 		await getData();
@@ -46,7 +108,7 @@
 	<abbr class="no-underline" title="Data date"
 		>{new Date($date).toDateString()}</abbr>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
 		disabled={$loading}
 		on:click={async () => {
 			await getData();
@@ -66,27 +128,23 @@
 		</svg>
 	</button>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/";
 		}}>Home</button>
+
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			route = "/entry";
-		}}>Entry</button>
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/tb";
 		}}>Trial Balance</button>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/jv";
 		}}>Journals</button>
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			route = "/xpGL";
 		}}>Export GL</button>
@@ -97,7 +155,7 @@
 		>Balance Sheet</a
 	> -->
 	<button
-		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 		on:click={() => {
 			print();
 		}}>
@@ -241,17 +299,161 @@
 </div>
 
 <div class="container mx-auto">
-	{#if route == "/entry"}
-		<Entry />
-	{:else if route == "/tb"}
+	{#if route == "/tb"}
 		<TrialBalance />
 	{:else if route == "/jv"}
 		<Doc />
 	{:else if route == "/xpGL"}
 		<ExportGl />
-	{:else}
-		<Dashboard />
 	{/if}
+</div>
+
+<div class="container mx-auto p-4">
+	<div
+		class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+		<div class="">
+			<Doughnut data={tbdata} />
+		</div>
+
+		<div class="">
+			<div class="text-lg font-semibold" />
+			<div class="">
+				<input
+					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+					type="text"
+					list="refs"
+					bind:value={tran.ref} />
+				<input
+					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+					type="datetime-local"
+					bind:value={tran.date} />
+				<input
+					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+					type="text"
+					list="names"
+					bind:value={tran.name} />
+				<textarea
+					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+					rows="2"
+					bind:value={tran.desc} />
+			</div>
+			{#if tran.ledger}
+				<div class="">
+					<div class="text-lg font-semibold">Ledger</div>
+					<div class="">
+						{#each tran.ledger as item, index (`tran-${index}`)}
+							<div class="grid grid-cols-2">
+								<input
+									class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+									type="text"
+									list="accounts"
+									bind:value={item.account} />
+								<input
+									class="w-full rounded-md border-0 px-3 py-2 text-right text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+									type="number"
+									bind:value={item.amount} />
+								<button
+									class="text-fuchsia-500"
+									on:click={() => {
+										// item.ledger.splice(index, 1);
+										// item.ledger = item.ledger;
+										item.account = null;
+										item.amount = null;
+										// itemSec.ref = null;
+									}}>
+									<!-- x-mark outline heroicons -->
+									<svg
+										class="h-6 w-6"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="1.5"
+										stroke="currentColor">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M6 18L18 6M6 6l12 12" />
+									</svg>
+								</button>
+							</div>
+						{/each}
+						<button
+							class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+							on:click={() => {
+								tran.ledger = [
+									{ ref: uuidv4() },
+									{ ref: uuidv4() },
+									...tran.ledger,
+								];
+							}}>
+							Add
+						</button>
+					</div>
+				</div>
+			{/if}
+			<div class="">
+				{#if tran.ledger}
+					<button
+						class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+						type="button"
+						on:click={async () => {
+							let warning;
+							tran.ledger.forEach((itemSec) => {
+								if (itemSec.account) {
+									if (isNaN(itemSec.account.charAt(0))) {
+										warning = true;
+										console.log("Account must start with number 0-9");
+									}
+								}
+							});
+							if (warning) {
+							} else {
+								await setData([tran]);
+							}
+						}}>Save</button>
+				{/if}
+				<button
+					class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+					type="button"
+					on:click={() => {
+						tran = {};
+					}}>Clear</button>
+			</div>
+		</div>
+		<div class="h-80 overflow-y-auto">
+			<div class="text-lg font-semibold">Transactions</div>
+			<div class="">
+				{#each $trans as item, index (`trans-${index}`)}
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<div
+						class="grid grid-cols-3"
+						on:click={() => {
+							tran = item;
+						}}>
+						<input
+							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+							type="datetime-local"
+							disabled
+							bind:value={item.date} />
+						<input
+							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+							type="text"
+							disabled
+							bind:value={item.name} />
+						<input
+							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+							type="text"
+							disabled
+							bind:value={item.desc} />
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<div class="">
+			<div class="text-lg font-semibold">Other</div>
+		</div>
+	</div>
 </div>
 
 <a
