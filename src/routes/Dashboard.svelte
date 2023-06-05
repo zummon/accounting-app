@@ -64,12 +64,14 @@
 	});
 </script>
 
-<div class="flex flex-wrap px-2 pb-4">
-	<div class="aspect-video w-full lg:w-1/2">
-		<canvas class="" bind:this={chartContext} />
+{#key grouptotal}
+	<div class="flex flex-wrap px-2 pb-4">
+		<div class="aspect-video w-full lg:w-1/2">
+			<canvas class="" bind:this={chartContext} />
+		</div>
+		<div class="w-full lg:w-1/2" />
 	</div>
-	<div class="w-full lg:w-1/2" />
-</div>
+{/key}
 
 <div class="px-2 pb-4">
 	<table class="">

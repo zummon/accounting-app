@@ -14,6 +14,7 @@
 	import Entry from "./routes/Entry.svelte";
 	import TrialBalance from "./routes/TrialBalance.svelte";
 	import Doc from "./routes/Doc.svelte";
+	import ExportGl from "./routes/ExportGL.svelte";
 
 	let route = "/";
 	let ref = "";
@@ -84,6 +85,11 @@
 		on:click={() => {
 			route = "/jv";
 		}}>Journals</button>
+	<button
+		class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+		on:click={() => {
+			route = "/xpGL";
+		}}>Export GL</button>
 	<!-- <a href="/" class="mb-4 mr-4 text-green-500"
 		>income Statement</a
 	>
@@ -241,6 +247,8 @@
 		<TrialBalance />
 	{:else if route == "/jv"}
 		<Doc />
+	{:else if route == "/xpGL"}
+		<ExportGl />
 	{:else}
 		<Dashboard />
 	{/if}

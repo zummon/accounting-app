@@ -147,7 +147,7 @@ const getData = () => {
 		return { ref, ...obj };
 	});
 
-	dataset.account = [];
+	dataset.account = {};
 	datasetid.account.forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
 
@@ -157,7 +157,7 @@ const getData = () => {
 		values.slice(1).forEach((cells) => {
 			let [account, note, group, groupSec] = cells;
 
-			dataset.account.push({ account, note, group, groupSec });
+			dataset.account[account] = { note, group, groupSec };
 		});
 	});
 

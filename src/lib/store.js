@@ -8,7 +8,8 @@ export const getData = async () => {
 			trans.set(result.data);
 			date.set(result.date);
 			warnings.set(result.warning);
-			dataset.set(result.dataset);
+			accounts.set(Object.keys(result.dataset.account));
+			// dataset.set(result.dataset);
 			loading.set(false);
 		})
 		.withFailureHandler((error) => {})
@@ -33,7 +34,7 @@ export const warnings = writable([]);
 
 export const trans = writable([]);
 
-export const dataset = writable({});
+// export const dataset = writable({});
 
 export const query = writable({
 	date: { start: "", end: "" },
@@ -105,12 +106,4 @@ export const names = derived(trans, ($trans) => {
 	return Object.keys(result).sort();
 });
 
-export const accounts = derived(trans, ($trans) => {
-	let result = {};
-	$trans.forEach((item) => {
-		item.ledger.forEach((itemSec) => {
-			result[itemSec.account] = true;
-		});
-	});
-	return Object.keys(result).sort();
-});
+export const accounts = writable([]);
