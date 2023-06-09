@@ -57,22 +57,24 @@
 	<div
 		class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
 		<div class="">
-			<Doughnut
-				data={{
-					labels: Object.keys(group),
-					datasets: [
-						{
-							data: Object.values(group),
-							backgroundColor: [
-								"rgb(255, 105, 96)",
-								"rgb(255, 142, 0)",
-								"rgb(255, 187, 51)",
-								"rgb(255, 223, 102)",
-								"rgb(255, 255, 153)",
-							],
-						},
-					],
-				}} />
+			{#key group}
+				<Doughnut
+					data={{
+						labels: Object.keys(group),
+						datasets: [
+							{
+								data: Object.values(group),
+								backgroundColor: [
+									"rgb(255, 105, 96)",
+									"rgb(255, 142, 0)",
+									"rgb(255, 187, 51)",
+									"rgb(255, 223, 102)",
+									"rgb(255, 255, 153)",
+								],
+							},
+						],
+					}} />
+			{/key}
 		</div>
 		<div class="">
 			<div class="text-lg font-semibold">?</div>
