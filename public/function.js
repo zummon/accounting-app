@@ -6,7 +6,27 @@ const getData = () => {
 	let dataset = {};
 	let date = new Date().toJSON();
 
-	databaseid[""].forEach((id) => {
+	dataset.account = {};
+	source.accounts.forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+
+		let sheet = spreadsheet.getSheets()[0];
+		let values = sheet.getDataRange().getValues();
+
+		values.slice(1).forEach((cells) => {
+			let [account, note, group, groupSec, groupThird, absolute] = cells;
+
+			dataset.account[account] = {
+				note,
+				group,
+				groupSec,
+				groupThird,
+				absolute,
+			};
+		});
+	});
+
+	source[""].forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
 		const driveFile = DriveApp.getFileById(id);
 
@@ -19,44 +39,44 @@ const getData = () => {
 			let values = range.getValues();
 
 			values.slice(1).forEach((cells) => {
-				let [ref, date, name, desc] = cells;
+				let [key, date, name, desc] = cells;
 
 				date = date.toISOString().slice(0, 16);
 
 				let resultSec = { date, name, desc };
 
-				if (result[ref]) {
-					warning.push(`duplicated doc ref '${ref}'`);
+				if (result[key]) {
+					warning.push(`duplicated key '${key}'`);
 				} else {
-					result[ref] = resultSec;
+					result[key] = resultSec;
 				}
 			});
 
-			let key = {};
+			let uniqueKey = {};
 			sheet = spreadsheet.getSheetByName("ledger");
 			range = sheet.getDataRange();
 			values = range.getValues();
 
 			values.slice(1).forEach((cells) => {
-				let [ref, docRef, account, amount] = cells;
+				let [key, docKey, account, amount] = cells;
 
-				let resultSec = { ref, account, amount };
+				let resultSec = { key, account, amount, ...dataset.account[account] };
 
-				if (key[ref]) {
-					warning.push(`duplicated ledger ref '${ref}'`);
+				if (uniqueKey[key]) {
+					warning.push(`duplicated ledger key '${key}'`);
 				} else {
-					if (result[docRef].ledger) {
-						result[docRef].ledger.push(resultSec);
+					if (result[docKey].ledger) {
+						result[docKey].ledger.push(resultSec);
 					} else {
-						result[docRef].ledger = [resultSec];
+						result[docKey].ledger = [resultSec];
 					}
 				}
-				key[ref] = true;
+				uniqueKey[key] = true;
 			});
 		}
 	});
 
-	databaseid.invoice.forEach((id) => {
+	source.invoice.forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
 		const driveFile = DriveApp.getFileById(id);
 
@@ -66,26 +86,26 @@ const getData = () => {
 		if (fileAccess !== "NONE" || fileShare.startsWith("ANYONE")) {
 			let resultSec = {};
 
-			let key = {};
+			let uniqueKey = {};
 			let sheet = spreadsheet.getSheetByName("item");
 			let range = sheet.getDataRange();
 			let values = range.getValues();
 
 			values.slice(1).forEach((cells) => {
-				let [ref, docRef, desc, price, qty] = cells;
+				let [key, docKey, desc, price, qty] = cells;
 
-				let resultThird = { ref, desc, price, qty };
+				let resultThird = { key, desc, price, qty };
 
-				if (key[ref]) {
-					warning.push(`duplicated invoice item ref '${ref}'`);
+				if (uniqueKey[key]) {
+					warning.push(`duplicated invoice item key '${key}'`);
 				} else {
-					if (resultSec[docRef]) {
-						resultSec[docRef].items.push(resultThird);
+					if (resultSec[docKey]) {
+						resultSec[docKey].items.push(resultThird);
 					} else {
-						resultSec[docRef] = { items: [resultThird] };
+						resultSec[docKey] = { items: [resultThird] };
 					}
 				}
-				key[ref] = true;
+				uniqueKey[key] = true;
 			});
 
 			sheet = spreadsheet.getSheetByName("doc");
@@ -94,8 +114,8 @@ const getData = () => {
 
 			values.slice(1).forEach((cells) => {
 				let [
-					ref,
-					docRef,
+					key,
+					docKey,
 					lang,
 					doc,
 					currency,
@@ -116,7 +136,7 @@ const getData = () => {
 				duedate = duedate.toISOString().slice(0, 16);
 
 				let resultThird = {
-					ref,
+					key,
 					lang,
 					doc,
 					currency,
@@ -134,34 +154,20 @@ const getData = () => {
 					note,
 				};
 
-				if (result[docRef].invoice) {
-					warning.push(`duplicated invoice ref '${ref}'`);
+				if (result[docKey].invoice) {
+					warning.push(`duplicated invoice key '${key}'`);
 				} else {
-					result[docRef].invoice = { ...resultThird, ...resultSec[ref] };
+					result[docKey].invoice = { ...resultThird, ...resultSec[key] };
 				}
 			});
 		}
 	});
 
-	result = Object.entries(result).map(([ref, obj]) => {
-		return { ref, ...obj };
+	result = Object.entries(result).map(([key, obj]) => {
+		return { key, ...obj };
 	});
 
-	dataset.account = {};
-	datasetid.account.forEach((id) => {
-		const spreadsheet = SpreadsheetApp.openById(id);
-
-		let sheet = spreadsheet.getSheets()[0];
-		let values = sheet.getDataRange().getValues();
-
-		values.slice(1).forEach((cells) => {
-			let [account, note, group, groupSec, groupThird] = cells;
-
-			dataset.account[account] = { note, group, groupSec, groupThird };
-		});
-	});
-
-	result = JSON.stringify({ data: result, date, warning, dataset });
+	result = JSON.stringify({ data: result, date, warning });
 
 	console.log(result);
 
@@ -176,9 +182,9 @@ const setData = (saves) => {
 	saves = JSON.parse(saves);
 
 	saves.forEach((save) => {
-		let { ref, date, name, desc, ledger } = save;
+		let { key, date, name, desc, ledger } = save;
 
-		databaseid[""].forEach((id) => {
+		source[""].forEach((id) => {
 			const spreadsheet = SpreadsheetApp.openById(id);
 			const driveFile = DriveApp.getFileById(id);
 
@@ -189,10 +195,10 @@ const setData = (saves) => {
 					let sheet = spreadsheet.getSheetByName("doc");
 					let lastRow = sheet.getLastRow();
 					let range = sheet.getRange(2, 1, lastRow - 1);
-					let refs = range.getValues().map(([value]) => value);
-					let index = refs.indexOf(ref);
+					let keys = range.getValues().map(([value]) => value);
+					let index = keys.indexOf(key);
 
-					let resultSec = [ref, date, name, desc];
+					let resultSec = [key, date, name, desc];
 
 					if (index >= 0) {
 						sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
@@ -205,13 +211,13 @@ const setData = (saves) => {
 					let sheet = spreadsheet.getSheetByName("ledger");
 					let lastRow = sheet.getLastRow();
 					let range = sheet.getRange(2, 1, lastRow - 1);
-					let refs = range.getValues().map(([value]) => value);
+					let keys = range.getValues().map(([value]) => value);
 
 					ledger.forEach((obj) => {
-						let index = refs.indexOf(obj.ref);
+						let index = keys.indexOf(obj.key);
 						let { account, amount } = obj;
 
-						let resultSec = [obj.ref, ref, account, amount];
+						let resultSec = [obj.key, key, account, amount];
 
 						if (index >= 0) {
 							sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);

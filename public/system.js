@@ -1,10 +1,8 @@
-const databaseid = {
+const source = {
 	"": ["1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs"],
 	invoice: ["1fFGmZnAJjNvyuF8gC-KuvGKmwj4OtpDu07abKh2i2As"],
-};
-
-const datasetid = {
-	account: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
+	// dataset
+	accounts: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
 };
 
 const doGet = (e) => {

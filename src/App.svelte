@@ -2,462 +2,246 @@
 	import "chart.js/auto";
 	import { onMount } from "svelte";
 	import {
-		getData,
-		names,
-		accounts,
-		refs,
 		loading,
-		query,
 		date,
 		warnings,
 		trans,
-		subtotal,
-		setData,
+		names,
+		accounts,
+		keys,
 	} from "./lib/store";
-	import TrialBalance from "./routes/TrialBalance.svelte";
-	import Doc from "./routes/Doc.svelte";
-	import ExportGl from "./routes/ExportGL.svelte";
 	import { Doughnut } from "svelte-chartjs";
-	import { accountGroup } from "./lib/dataset";
 	import { v4 as uuidv4 } from "uuid";
+	import { getData, setData } from "./lib/function";
 
 	let tran = {};
-	let route = "/";
-	let ref = "";
-	let name = "";
-	let grouptotal = {};
-	let account = "";
-	let tbdata = {
-		labels: ["Red", "Green", "Yellow", "Grey", "Dark Grey"],
-		datasets: [
-			{
-				data: [300, 50, 100, 40, 120],
-				backgroundColor: [
-					"#F7464A",
-					"#46BFBD",
-					"#FDB45C",
-					"#949FB1",
-					"#4D5360",
-				],
-				hoverBackgroundColor: [
-					"#FF5A5E",
-					"#5AD3D1",
-					"#FFC870",
-					"#A8B3C5",
-					"#616774",
-				],
-			},
-		],
-	};
 
-	$: {
-		grouptotal = {};
-		Object.entries($subtotal).forEach(([key, value]) => {
-			let group = Number(key.charAt(0));
-			let groupName = accountGroup[group];
+	$: group = $trans.reduce((prev, item) => {
+		let value = item.amount;
+		let groupName = item.group;
 
-			if (group >= 2 && group <= 4) {
-				value = -value;
-			}
+		if (item.absolute) {
+			value = -value;
+		}
 
-			if (grouptotal[groupName]) {
-				grouptotal[groupName] += value;
-			} else {
-				grouptotal[groupName] = value;
-			}
-		});
-		tbdata = {
-			labels: Object.keys(grouptotal),
-			datasets: [
-				{
-					data: Object.values(grouptotal),
-					backgroundColor: [
-						"rgb(255, 105, 96)",
-						"rgb(255, 142, 0)",
-						"rgb(255, 187, 51)",
-						"rgb(255, 223, 102)",
-						"rgb(255, 255, 153)",
-					],
-				},
-			],
-		};
-	}
+		if (prev[groupName]) {
+			prev[groupName] += value;
+		} else {
+			prev[groupName] = value;
+		}
+		return prev;
+	}, {});
 
-	onMount(async () => {
-		await getData();
+	onMount(() => {
+		getData();
 	});
 </script>
 
-<datalist id="refs">
-	{#each $refs as value, index (`ref-${index}`)}
+<datalist id="keys">
+	{#each $keys as value, index (`keys-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
 <datalist id="names">
-	{#each $names as value, index (`name-${index}`)}
+	{#each $names as value, index (`names-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
 <datalist id="accounts">
-	{#each $accounts as value, index (`account-${index}`)}
+	{#each $accounts as value, index (`accounts-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
-
-<div class="flex flex-wrap justify-center gap-4 px-2 py-4 print:hidden">
-	<abbr class="no-underline" title="Data date"
-		>{new Date($date).toDateString()}</abbr>
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
-		disabled={$loading}
-		on:click={async () => {
-			await getData();
-		}}>
-		<!-- arrow-path outline heroicons -->
-		<svg
-			class="h-8 w-8"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke-width="1.5"
-			stroke="currentColor">
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-		</svg>
-	</button>
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			route = "/";
-		}}>Home</button>
-
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			route = "/tb";
-		}}>Trial Balance</button>
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			route = "/jv";
-		}}>Journals</button>
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			route = "/xpGL";
-		}}>Export GL</button>
-	<!-- <a href="/" class="mb-4 mr-4 text-green-500"
-		>income Statement</a
-	>
-	<a href="/" class="mb-4 mr-4 text-green-500"
-		>Balance Sheet</a
-	> -->
-	<button
-		class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-		on:click={() => {
-			print();
-		}}>
-		<!-- printer outline heroicons -->
-		<svg
-			class="h-8 w-8"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke-width="1.5"
-			stroke="currentColor">
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
-		</svg>
-	</button>
-	<abbr class="text-2xl no-underline" title={$warnings.join("\n")}>!</abbr>
-</div>
-
-<div class="container mx-auto px-2 pb-4">
-	<span class="mb-2 mr-2 text-xl">Filter - Query</span>
-	<button
-		class="mb-2 mr-2 text-fuchsia-500 print:hidden"
-		on:click={() => {
-			$query.date.start = "";
-			$query.date.end = "";
-			$query.refs = [];
-			$query.names = [];
-			$query.accounts = [];
-			ref = "";
-			name = "";
-			account = "";
-		}}>
-		Clear
-	</button>
-	<div class="">
-		<abbr class="no-underline" title={$query.date.start}>
-			<label class="mb-2 mr-2">
-				<span class="mr-2">Start date:</span>
-				<input
-					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					type="datetime-local"
-					bind:value={$query.date.start} />
-			</label>
-		</abbr>
-		<abbr class="no-underline" title={$query.date.end}>
-			<label class="mb-2 mr-2">
-				<span class="mr-2">End date:</span>
-				<input
-					class="rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					type="datetime-local"
-					bind:value={$query.date.end} />
-			</label>
-		</abbr>
-	</div>
-	<div class="">
-		<label class="mb-2 mr-2" for="ref">
-			<span class="">Ref:</span>
-		</label>
-		{#each $query.refs as value, index (`query-ref-${index}`)}
-			<button
-				class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
-				on:click={() => {
-					$query.refs.splice(index, 1);
-					$query.refs = $query.refs;
-				}}>
-				{value}
-			</button>
-		{/each}
-		<input
-			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
-			type="text"
-			list="refs"
-			id="ref"
-			placeholder="type.."
-			bind:value={ref}
-			on:change={() => {
-				if (ref && $query.refs.indexOf(ref) == -1) {
-					$query.refs = [...$query.refs, ref];
-					ref = "";
-				}
-			}} />
-	</div>
-	<div class="">
-		<label class="mb-2 mr-2" for="name">
-			<span class="mr-2">Name:</span>
-		</label>
-		{#each $query.names as value, index (`query-name-${index}`)}
-			<button
-				class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
-				on:click={() => {
-					$query.names.splice(index, 1);
-					$query.names = $query.names;
-				}}>
-				{value}
-			</button>
-		{/each}
-		<input
-			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
-			type="text"
-			list="names"
-			id="name"
-			placeholder="type.."
-			bind:value={name}
-			on:change={() => {
-				if (name && $query.names.indexOf(name) == -1) {
-					$query.names = [...$query.names, name];
-					name = "";
-				}
-			}} />
-	</div>
-	<div class="">
-		<label class="mb-2 mr-2" for="account">
-			<span class="mr-2">Account:</span>
-		</label>
-		{#each $query.accounts as value, index (`query-account-${index}`)}
-			<button
-				class="mb-2 mr-2 rounded-3xl border-2 border-fuchsia-500 px-2 py-0.5 text-fuchsia-500 print:border-gray-500 print:text-black"
-				on:click={() => {
-					$query.accounts.splice(index, 1);
-					$query.accounts = $query.accounts;
-				}}>
-				{value}
-			</button>
-		{/each}
-		<input
-			class="rounded-md border-0 px-2 py-1 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 print:hidden"
-			type="text"
-			list="accounts"
-			id="account"
-			placeholder="type.."
-			bind:value={account}
-			on:change={() => {
-				if (account && $query.accounts.indexOf(account) == -1) {
-					$query.accounts = [...$query.accounts, account];
-					account = "";
-				}
-			}} />
-	</div>
-</div>
-
-<div class="container mx-auto">
-	{#if route == "/tb"}
-		<TrialBalance />
-	{:else if route == "/jv"}
-		<Doc />
-	{:else if route == "/xpGL"}
-		<ExportGl />
-	{/if}
-</div>
 
 <div class="container mx-auto p-4">
 	<div
 		class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
 		<div class="">
-			<Doughnut data={tbdata} />
+			<Doughnut
+				data={{
+					labels: Object.keys(group),
+					datasets: [
+						{
+							data: Object.values(group),
+							backgroundColor: [
+								"rgb(255, 105, 96)",
+								"rgb(255, 142, 0)",
+								"rgb(255, 187, 51)",
+								"rgb(255, 223, 102)",
+								"rgb(255, 255, 153)",
+							],
+						},
+					],
+				}} />
 		</div>
-
 		<div class="">
-			<div class="text-lg font-semibold" />
+			<div class="text-lg font-semibold">?</div>
+		</div>
+	</div>
+</div>
+
+<div class="container mx-auto p-4">
+	<div class="flex flex-wrap items-center justify-center">
+		<div class="flex gap-4">
+			<button
+				class="rounded-full p-2 text-green-500"
+				type="button"
+				on:click={() => {
+					tran.key = uuidv4();
+				}}>
+				<!-- heroicons solid key -->
+				<svg
+					class="h-6 w-6"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="currentColor">
+					<path
+						fill-rule="evenodd"
+						d="M15.75 1.5a6.75 6.75 0 00-6.651 7.906c.067.39-.032.717-.221.906l-6.5 6.499a3 3 0 00-.878 2.121v2.818c0 .414.336.75.75.75H6a.75.75 0 00.75-.75v-1.5h1.5A.75.75 0 009 19.5V18h1.5a.75.75 0 00.53-.22l2.658-2.658c.19-.189.517-.288.906-.22A6.75 6.75 0 1015.75 1.5zm0 3a.75.75 0 000 1.5A2.25 2.25 0 0118 8.25a.75.75 0 001.5 0 3.75 3.75 0 00-3.75-3.75z"
+						clip-rule="evenodd" />
+				</svg>
+			</button>
+			<input
+				class="w-12 rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+				type="text"
+				list="keys"
+				bind:value={tran.key} />
+		</div>
+		<input
+			class="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			type="datetime-local"
+			bind:value={tran.date} />
+		<input
+			class="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			type="text"
+			list="names"
+			bind:value={tran.name} />
+		<textarea
+			class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			rows="2"
+			bind:value={tran.desc} />
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+			type="button"
+			on:click={() => {
+				setData([tran]);
+			}}>
+			<!-- cloud-arrow-down solid heroicons -->
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				fill="currentColor"
+				class="h-6 w-6">
+				<path
+					fill-rule="evenodd"
+					d="M10.5 3.75a6 6 0 00-5.98 6.496A5.25 5.25 0 006.75 20.25H18a4.5 4.5 0 002.206-8.423 3.75 3.75 0 00-4.133-4.303A6.001 6.001 0 0010.5 3.75zm2.25 6a.75.75 0 00-1.5 0v4.94l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V9.75z"
+					clip-rule="evenodd" />
+			</svg>
+		</button>
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			type="button"
+			on:click={() => {
+				tran = {};
+			}}>
+			<!-- x-mark outline heroicons -->
+			<svg
+				class="h-6 w-6"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M6 18L18 6M6 6l12 12" />
+			</svg>
+		</button>
+	</div>
+	<div class="">
+		{#if tran.ledger}
 			<div class="">
-				<input
-					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					type="text"
-					list="refs"
-					bind:value={tran.ref} />
-				<input
-					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					type="datetime-local"
-					bind:value={tran.date} />
-				<input
-					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					type="text"
-					list="names"
-					bind:value={tran.name} />
-				<textarea
-					class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-					rows="2"
-					bind:value={tran.desc} />
-			</div>
-			{#if tran.ledger}
+				<div class="text-lg font-semibold">Ledger</div>
 				<div class="">
-					<div class="text-lg font-semibold">Ledger</div>
-					<div class="">
-						{#each tran.ledger as item, index (`tran-${index}`)}
-							<div class="grid grid-cols-2">
-								<input
-									class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-									type="text"
-									list="accounts"
-									bind:value={item.account} />
-								<input
-									class="w-full rounded-md border-0 px-3 py-2 text-right text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-									type="number"
-									bind:value={item.amount} />
-								<button
-									class="text-fuchsia-500"
-									on:click={() => {
-										// item.ledger.splice(index, 1);
-										// item.ledger = item.ledger;
-										item.account = null;
-										item.amount = null;
-										// itemSec.ref = null;
-									}}>
-									<!-- x-mark outline heroicons -->
-									<svg
-										class="h-6 w-6"
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="1.5"
-										stroke="currentColor">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M6 18L18 6M6 6l12 12" />
-									</svg>
-								</button>
-							</div>
-						{/each}
-						<button
-							class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-							on:click={() => {
-								tran.ledger = [
-									{ ref: uuidv4() },
-									{ ref: uuidv4() },
-									...tran.ledger,
-								];
-							}}>
-							Add
-						</button>
-					</div>
-				</div>
-			{/if}
-			<div class="">
-				{#if tran.ledger}
+					{#each tran.ledger as item, index (`tran-ledger-${index}`)}
+						<div class="grid grid-cols-2">
+							<input
+								class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								type="text"
+								list="accounts"
+								bind:value={item.account} />
+							<input
+								class="w-full rounded-md border-0 px-3 py-2 text-right text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								type="number"
+								bind:value={item.amount} />
+							<button
+								class="text-fuchsia-500"
+								type="button"
+								on:click={() => {
+									// item.ledger.splice(index, 1);
+									// item.ledger = item.ledger;
+									item.account = null;
+									item.amount = null;
+									// itemSec.ref = null;
+								}}>
+								<!-- x-mark outline heroicons -->
+								<svg
+									class="h-6 w-6"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M6 18L18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</div>
+					{/each}
 					<button
-						class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+						class="rounded-full bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-2 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 						type="button"
-						on:click={async () => {
-							let warning;
-							tran.ledger.forEach((itemSec) => {
-								if (itemSec.account) {
-									if (isNaN(itemSec.account.charAt(0))) {
-										warning = true;
-										console.log("Account must start with number 0-9");
-									}
-								}
-							});
-							if (warning) {
-							} else {
-								await setData([tran]);
-							}
-						}}>Save</button>
-				{/if}
-				<button
-					class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-					type="button"
-					on:click={() => {
-						tran = {};
-					}}>Clear</button>
-			</div>
-		</div>
-		<div class="h-80 overflow-y-auto">
-			<div class="text-lg font-semibold">Transactions</div>
-			<div class="">
-				{#each $trans as item, index (`trans-${index}`)}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<div
-						class="grid grid-cols-3"
 						on:click={() => {
-							tran = item;
+							tran.ledger = [
+								{ ref: uuidv4() },
+								{ ref: uuidv4() },
+								...tran.ledger,
+							];
 						}}>
-						<input
-							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-							type="datetime-local"
-							disabled
-							bind:value={item.date} />
-						<input
-							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-							type="text"
-							disabled
-							bind:value={item.name} />
-						<input
-							class="w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
-							type="text"
-							disabled
-							bind:value={item.desc} />
-					</div>
-				{/each}
+						<!-- plus outline heroicons -->
+						<svg
+							class="h-6 w-6"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M12 4.5v15m7.5-7.5h-15" />
+						</svg>
+					</button>
+				</div>
 			</div>
-		</div>
-
-		<div class="">
-			<div class="text-lg font-semibold">Other</div>
-		</div>
+		{/if}
+	</div>
+	<div class="">
+		{#each $trans as item, index (`trans-${index}`)}
+			<button
+				class="w-16 truncate"
+				type="button"
+				on:click={() => {
+					tran = item;
+				}}>{item.date} {item.name} {item.desc}</button>
+		{/each}
 	</div>
 </div>
 
 <a
 	href="https://zummon.page/"
 	target="_blank"
-	class="mx-auto mt-2 block w-fit text-green-500 print:hidden"
-	>Made by zummon</a>
+	class="mx-auto block w-fit p-4 text-green-500 print:hidden">Made by zummon</a>

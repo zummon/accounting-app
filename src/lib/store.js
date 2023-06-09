@@ -1,31 +1,5 @@
 import { writable, derived } from "svelte/store";
 
-export const getData = async () => {
-	loading.set(true);
-	google.script.run
-		.withSuccessHandler((result) => {
-			result = JSON.parse(result);
-			trans.set(result.data);
-			date.set(result.date);
-			warnings.set(result.warning);
-			accounts.set(Object.keys(result.dataset.account));
-			// dataset.set(result.dataset);
-			loading.set(false);
-		})
-		.withFailureHandler((error) => {})
-		.getData();
-};
-
-export const setData = async (data) => {
-	data = JSON.stringify(data);
-	google.script.run
-		.withSuccessHandler(async (result) => {
-			// await getData();
-		})
-		.withFailureHandler((error) => {})
-		.setData(data);
-};
-
 export const date = writable("");
 
 export const loading = writable(false);
@@ -34,76 +8,25 @@ export const warnings = writable([]);
 
 export const trans = writable([]);
 
-// export const dataset = writable({});
-
-export const query = writable({
-	date: { start: "", end: "" },
-	refs: [],
-	names: [],
-	accounts: [],
-});
-
-export const filterTrans = derived([trans, query], ([$trans, $query]) => {
-	let result = [];
-
-	$trans.forEach((item) => {
-		if ($query.names.includes(item.name) || $query.names.length == 0) {
-			let resultSec = { ...item, ledger: [] };
-
-			if (item.date <= $query.date.end || $query.date.end == "") {
-				item.ledger.forEach((itemSec) => {
-					const group = Number(itemSec.account.charAt(0));
-
-					if (item.date < $query.date.start) {
-						if (group >= 4) {
-							itemSec.account = "3 Generated retained earnings";
-						}
-					}
-
-					resultSec.ledger.push(itemSec);
-				});
-			}
-
-			result.push(resultSec);
-		}
-	});
-
-	$query.accounts;
-	$query.refs;
-
-	return result;
-});
-
-export const subtotal = derived(filterTrans, ($filterTrans) => {
-	let result = {};
-
-	$filterTrans.forEach((item) => {
-		item.ledger.forEach((itemSec) => {
-			if (result[itemSec.account]) {
-				result[itemSec.account] += itemSec.amount;
-			} else {
-				result[itemSec.account] = itemSec.amount;
-			}
-		});
-	});
-
-	return result;
-});
-
-export const refs = derived(trans, ($trans) => {
-	let result = {};
-	$trans.forEach((item) => {
-		result[item.ref] = true;
-	});
-	return Object.keys(result).sort();
+export const keys = derived(trans, ($trans) => {
+	return $trans.map((item) => item.key);
 });
 
 export const names = derived(trans, ($trans) => {
-	let result = {};
-	$trans.forEach((item) => {
-		result[item.name] = true;
+	let result = $trans.map((item) => {
+		return item.name;
 	});
-	return Object.keys(result).sort();
+	return [...new Set(result)];
 });
 
-export const accounts = writable([]);
+export const accounts = derived(trans, ($trans) => {
+	let result = [];
+	$trans.forEach((item) => {
+		if (Array.isArray(item.ledger)) {
+			item.ledger.forEach((itemSec) => {
+				result.push(itemSec.account);
+			});
+		}
+	});
+	return [...new Set(result)];
+});
