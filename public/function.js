@@ -60,7 +60,13 @@ const getData = () => {
 			values.slice(1).forEach((cells) => {
 				let [key, docKey, account, amount] = cells;
 
-				let resultSec = { key, account, amount, ...dataset.account[account] };
+				let resultSec = { key, account, amount };
+
+				if (dataset.account[account]) {
+					resultSec = { ...resultSec, ...dataset.account[account] };
+				} else {
+					warning.push(`set of accounts must have '${account}'`);
+				}
 
 				if (uniqueKey[key]) {
 					warning.push(`duplicated ledger key '${key}'`);
@@ -169,8 +175,6 @@ const getData = () => {
 
 	result = JSON.stringify({ data: result, date, warning });
 
-	console.log(result);
-
 	return result;
 };
 
@@ -232,5 +236,7 @@ const setData = (saves) => {
 
 	let date = new Date().toJSON();
 
-	return { date, warning };
+	result = JSON.stringify({ date, warning });
+
+	return result;
 };

@@ -19,6 +19,7 @@ export const setData = (data) => {
 	data = JSON.stringify(data);
 	google.script.run
 		.withSuccessHandler((result) => {
+			result = JSON.parse(result);
 			date.set(result.date);
 			warnings.set(result.warning);
 			loading.set(false);

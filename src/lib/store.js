@@ -2,7 +2,7 @@ import { writable, derived } from "svelte/store";
 
 export const date = writable("");
 
-export const loading = writable(false);
+export const loading = writable(true);
 
 export const warnings = writable([]);
 
