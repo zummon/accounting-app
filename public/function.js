@@ -42,6 +42,7 @@ const getData = () => {
 				let [key, date, name, desc] = cells;
 
 				date = date.toISOString().slice(0, 16);
+				key = key.toString();
 
 				let resultSec = { date, name, desc };
 
@@ -59,6 +60,9 @@ const getData = () => {
 
 			values.slice(1).forEach((cells) => {
 				let [key, docKey, account, amount] = cells;
+
+				key = key.toString();
+				docKey = docKey.toString();
 
 				let resultSec = { key, account, amount };
 
@@ -140,6 +144,8 @@ const getData = () => {
 				] = cells;
 
 				duedate = duedate.toISOString().slice(0, 16);
+				key = key.toString();
+				docKey = docKey.toString();
 
 				let resultThird = {
 					key,
@@ -199,7 +205,7 @@ const setData = (saves) => {
 				let sheet = spreadsheet.getSheetByName("doc");
 				let lastRow = sheet.getLastRow();
 				let range = sheet.getRange(2, 1, lastRow - 1);
-				let keys = range.getValues().map(([value]) => value);
+				let keys = range.getValues().map(([value]) => value.toString());
 				let index = keys.indexOf(key);
 
 				let resultSec = [key, date, name, desc];
@@ -215,7 +221,7 @@ const setData = (saves) => {
 				let sheet = spreadsheet.getSheetByName("ledger");
 				let lastRow = sheet.getLastRow();
 				let range = sheet.getRange(2, 1, lastRow - 1);
-				let keys = range.getValues().map(([value]) => value);
+				let keys = range.getValues().map(([value]) => value.toString());
 
 				ledger.forEach((obj) => {
 					let index = keys.indexOf(obj.key);

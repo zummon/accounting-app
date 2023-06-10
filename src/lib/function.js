@@ -14,7 +14,7 @@ export const getData = () => {
 		.getData();
 };
 
-export const setData = (data) => {
+export const setData = (data, callback) => {
 	loading.set(true);
 	data = JSON.stringify(data);
 	google.script.run
@@ -22,7 +22,7 @@ export const setData = (data) => {
 			result = JSON.parse(result);
 			date.set(result.date);
 			warnings.set(result.warning);
-			console.log(result);
+			callback();
 			loading.set(false);
 		})
 		.withFailureHandler((error) => {})

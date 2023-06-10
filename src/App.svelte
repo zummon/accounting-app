@@ -18,6 +18,7 @@
 	let group = {};
 	let showWarning = false;
 	let pair = {};
+	let showTrans = false;
 
 	$: {
 		group = {};
@@ -29,11 +30,12 @@
 					if (itemSec.absolute) {
 						value = -value;
 					}
-
-					if (group[itemSec.group]) {
-						group[itemSec.group] += value;
-					} else {
-						group[itemSec.group] = value;
+					if (itemSec.group) {
+						if (group[itemSec.group]) {
+							group[itemSec.group] += value;
+						} else {
+							group[itemSec.group] = value;
+						}
 					}
 				});
 			}
@@ -86,45 +88,108 @@
 	{/each}
 </datalist>
 
-<dialog class="rounded-lg bg-white p-4 backdrop:bg-black/20" open={showWarning}>
-	<div class="flex gap-2">
-		<div class="grow">Warnings</div>
-		<button
-			class="text-fuchsia-500"
-			type="button"
-			on:click={() => {
-				showWarning = false;
-			}}>
-			<!-- x-mark outline heroicons -->
-			<svg
-				class="h-6 w-6"
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="1.5"
-				stroke="currentColor">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M6 18L18 6M6 6l12 12" />
-			</svg>
-		</button>
+<dialog class="bg-transparent backdrop:bg-black/20" open={showWarning}>
+	<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300">
+		<div class="mb-4 flex gap-2">
+			<div class="grow font-semibold">Warnings</div>
+			<button
+				class="text-fuchsia-500"
+				type="button"
+				on:click={() => {
+					showWarning = false;
+				}}>
+				<!-- x-mark outline heroicons -->
+				<svg
+					class="h-6 w-6"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+		</div>
+		<ul class="">
+			{#each $warnings as item, index (`warnings-${index}`)}
+				<li class="">{item}</li>
+			{/each}
+		</ul>
 	</div>
-	{#if $warnings.length == 0}
-		<div class="">No messages</div>
-	{/if}
-	<ul class="">
-		{#each $warnings as item, index (`warnings-${index}`)}
-			<li class="">{item}</li>
-		{/each}
-	</ul>
+</dialog>
+
+<dialog class="bg-transparent backdrop:bg-black/20" open={showTrans}>
+	<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300">
+		<div class="mb-4 flex gap-2">
+			<div class="grow font-semibold">Transactions</div>
+			<button
+				class="text-fuchsia-500"
+				type="button"
+				on:click={() => {
+					showTrans = false;
+				}}>
+				<!-- x-mark outline heroicons -->
+				<svg
+					class="h-6 w-6"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+		</div>
+		<div class="">
+			{#each $trans as item, index (`trans-${index}`)}
+				<div class="mb-2 flex gap-2">
+					<button
+						class="flex items-center gap-2 text-green-500"
+						type="button"
+						on:click={() => {
+							tran = item;
+							showTrans = false;
+						}}>
+						<span class="">
+							<!-- pencil solid heroicons -->
+							<svg
+								class="h-6 w-6"
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="currentColor">
+								<path
+									d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+							</svg>
+						</span>
+						<span class="max-w-lg grow truncate">
+							<span class="">
+								{new Date(item.date).toDateString()}
+							</span>
+							<span class="">
+								{item.name}
+							</span>
+							<span class="">
+								{item.desc}
+							</span>
+						</span>
+					</button>
+				</div>
+			{/each}
+		</div>
+	</div>
 </dialog>
 
 <div class="flex flex-wrap items-center justify-end p-4">
 	<div class="grow font-semibold">
-		<span class=""> Accounting App </span>
+		<span class="">Accounting App</span>
 		<button
-			class="inline-flex items-center gap-2 text-green-500 disabled:opacity-0"
+			class="inline-flex items-center gap-2 text-green-500 disabled:text-gray-500"
 			type="button"
 			disabled={$loading}
 			on:click={() => {
@@ -132,6 +197,9 @@
 			}}>
 			<span class="">
 				{new Date($date).toLocaleDateString()}
+			</span>
+			<span class="">
+				{new Date($date).toLocaleTimeString()}
 			</span>
 			<span class="">
 				<!-- arrow-path mini heroicons -->
@@ -150,9 +218,9 @@
 	</div>
 	<div class="">
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
 			type="button"
-			disabled={$loading}
+			disabled={$warnings.length == 0}
 			on:click={() => {
 				showWarning = true;
 			}}>
@@ -216,40 +284,53 @@
 
 <div class="container mx-auto p-4">
 	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
-		<div
-			class="flex items-center gap-2 rounded-full shadow-sm ring-1 ring-gray-300">
-			<input
-				class="rounded-full border-0 px-3 py-2 focus:ring-2 focus:ring-green-500"
-				type="text"
-				list="keys"
-				bind:value={tran.key}
-				on:input={() => {
-					let result = $trans.find((item) => {
-						item.key == tran.key;
-					});
-					if (result) {
-						tran = result;
-					}
-				}} />
-			<button
-				class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-				type="button"
-				on:click={() => {
-					tran.key = uuidv4();
-				}}>
-				<!-- heroicons solid key -->
-				<svg
-					class="h-6 w-6"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M15.75 1.5a6.75 6.75 0 00-6.651 7.906c.067.39-.032.717-.221.906l-6.5 6.499a3 3 0 00-.878 2.121v2.818c0 .414.336.75.75.75H6a.75.75 0 00.75-.75v-1.5h1.5A.75.75 0 009 19.5V18h1.5a.75.75 0 00.53-.22l2.658-2.658c.19-.189.517-.288.906-.22A6.75 6.75 0 1015.75 1.5zm0 3a.75.75 0 000 1.5A2.25 2.25 0 0118 8.25a.75.75 0 001.5 0 3.75 3.75 0 00-3.75-3.75z"
-						clip-rule="evenodd" />
-				</svg>
-			</button>
-		</div>
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			type="button"
+			on:click={() => {
+				tran = { key: uuidv4() };
+			}}>
+			<!-- plus solid heroicons -->
+			<svg
+				class="h-6 w-6"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M12 4.5v15m7.5-7.5h-15" />
+			</svg>
+		</button>
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			on:click={() => {
+				showTrans = true;
+			}}>
+			<!-- list-bullet outline heroicons -->
+			<svg
+				class="h-6 w-6"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+			</svg>
+		</button>
+	</div>
+	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
+		<input
+			class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 disabled:text-gray-500"
+			type="text"
+			list="keys"
+			disabled
+			bind:value={tran.key} />
 		<input
 			class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 			type="datetime-local"
@@ -263,51 +344,10 @@
 			class="grow rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 			rows="1"
 			bind:value={tran.desc} />
-		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-green-500 disabled:shadow-none"
-			type="button"
-			disabled={$loading}
-			on:click={() => {
-				if (tran.key) {
-					setData([tran]);
-				}
-			}}>
-			<!-- cloud-arrow-down solid heroicons -->
-			<svg
-				class="h-6 w-6"
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 24 24"
-				fill="currentColor">
-				<path
-					fill-rule="evenodd"
-					d="M10.5 3.75a6 6 0 00-5.98 6.496A5.25 5.25 0 006.75 20.25H18a4.5 4.5 0 002.206-8.423 3.75 3.75 0 00-4.133-4.303A6.001 6.001 0 0010.5 3.75zm2.25 6a.75.75 0 00-1.5 0v4.94l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V9.75z"
-					clip-rule="evenodd" />
-			</svg>
-		</button>
-		<button
-			class="rounded-full bg-fuchsia-500 px-4 py-2 font-semibold text-white shadow-md shadow-fuchsia-200 transition duration-300 hover:bg-white hover:text-fuchsia-500 hover:shadow-none hover:ring-1 hover:ring-fuchsia-500 focus:bg-white focus:text-fuchsia-500 focus:shadow-none focus:ring-2 focus:ring-fuchsia-500"
-			type="button"
-			on:click={() => {
-				tran = {};
-			}}>
-			<!-- x-mark outline heroicons -->
-			<svg
-				class="h-6 w-6"
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="1.5"
-				stroke="currentColor">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M6 18L18 6M6 6l12 12" />
-			</svg>
-		</button>
 	</div>
-	<div class="mx-auto mb-4 w-fit">
-		{#if tran.ledger}
-			<div class="w-fit">
+	<div class="mb-4 flex flex-wrap justify-center gap-2">
+		<div class="">
+			{#if tran.ledger}
 				<div class="mb-2 flex items-center justify-center gap-2 font-semibold">
 					<button
 						class="flex items-center gap-2 text-green-500"
@@ -372,67 +412,111 @@
 						</div>
 					{/each}
 				</div>
-			</div>
-		{:else}
-			<button
-				class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
-				type="button"
-				on:click={() => {
-					tran.ledger = [{ key: uuidv4() }, { key: uuidv4() }];
-				}}>
-				<span class="">
-					<!-- plus outline heroicons -->
-					<svg
-						class="h-6 w-6"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M12 4.5v15m7.5-7.5h-15" />
-					</svg>
-				</span>
-				<span class=""> Ledger </span>
-			</button>
-		{/if}
-	</div>
-	<div class="mx-auto w-fit">
-		{#each $trans as item, index (`trans-${index}`)}
-			<div class="mb-2 flex gap-2">
+			{:else}
 				<button
-					class="flex items-center gap-2 text-green-500"
+					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
 					type="button"
 					on:click={() => {
-						tran = item;
+						tran.ledger = [{ key: uuidv4() }, { key: uuidv4() }];
 					}}>
 					<span class="">
-						<!-- pencil solid heroicons -->
+						<!-- plus outline heroicons -->
 						<svg
 							class="h-6 w-6"
 							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
 							viewBox="0 0 24 24"
-							fill="currentColor">
+							stroke-width="1.5"
+							stroke="currentColor">
 							<path
-								d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M12 4.5v15m7.5-7.5h-15" />
 						</svg>
 					</span>
-					<span class="max-w-lg grow truncate">
-						<span class="">
-							{new Date(item.date).toDateString()}
-						</span>
-						<span class="">
-							{item.name}
-						</span>
-						<span class="">
-							{item.desc}
-						</span>
-					</span>
+					<span class="">Ledger</span>
 				</button>
-			</div>
-		{/each}
+			{/if}
+		</div>
+		<div class="">
+			{#if tran.invoice}
+				<div class="mb-2 flex items-center justify-center gap-2 font-semibold">
+					<span class="">invoice</span>
+				</div>
+				<div class="max-w-lg">
+					{JSON.stringify(tran.invoice)}
+				</div>
+			{:else}
+				<button
+					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+					type="button"
+					on:click={() => {
+						tran.invoice = { key: uuidv4() };
+					}}>
+					<span class="">
+						<!-- plus outline heroicons -->
+						<svg
+							class="h-6 w-6"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M12 4.5v15m7.5-7.5h-15" />
+						</svg>
+					</span>
+					<span class="">invoice</span>
+				</button>
+			{/if}
+		</div>
+	</div>
+	<div class="flex flex-wrap items-center justify-center gap-2">
+		<button
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
+			type="button"
+			disabled={$loading}
+			on:click={() => {
+				if (tran.key) {
+					setData([tran], () => {
+						tran = {};
+					});
+				}
+			}}>
+			<!-- cloud-arrow-down solid heroicons -->
+			<svg
+				class="h-6 w-6"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				fill="currentColor">
+				<path
+					fill-rule="evenodd"
+					d="M10.5 3.75a6 6 0 00-5.98 6.496A5.25 5.25 0 006.75 20.25H18a4.5 4.5 0 002.206-8.423 3.75 3.75 0 00-4.133-4.303A6.001 6.001 0 0010.5 3.75zm2.25 6a.75.75 0 00-1.5 0v4.94l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V9.75z"
+					clip-rule="evenodd" />
+			</svg>
+		</button>
+		<button
+			class="rounded-full bg-fuchsia-500 px-4 py-2 font-semibold text-white shadow-md shadow-fuchsia-200 transition duration-300 hover:bg-white hover:text-fuchsia-500 hover:shadow-none hover:ring-1 hover:ring-fuchsia-500 focus:bg-white focus:text-fuchsia-500 focus:shadow-none focus:ring-2 focus:ring-fuchsia-500"
+			type="button"
+			on:click={() => {
+				tran = {};
+			}}>
+			<!-- x-mark outline heroicons -->
+			<svg
+				class="h-6 w-6"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M6 18L18 6M6 6l12 12" />
+			</svg>
+		</button>
 	</div>
 </div>
 

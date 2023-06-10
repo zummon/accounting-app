@@ -1,6 +1,6 @@
 import { writable, derived } from "svelte/store";
 
-export const date = writable("");
+export const date = writable(new Date().toJSON());
 
 export const loading = writable(true);
 
