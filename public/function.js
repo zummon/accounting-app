@@ -190,47 +190,47 @@ const setData = (saves) => {
 
 		source[""].forEach((id) => {
 			const spreadsheet = SpreadsheetApp.openById(id);
-			const driveFile = DriveApp.getFileById(id);
+			// const driveFile = DriveApp.getFileById(id);
 
-			let fileAccess = driveFile.getAccess(user);
+			// let fileAccess = driveFile.getAccess(user);
 
-			if (["OWNER", "EDIT"].includes(fileAccess)) {
-				if (date) {
-					let sheet = spreadsheet.getSheetByName("doc");
-					let lastRow = sheet.getLastRow();
-					let range = sheet.getRange(2, 1, lastRow - 1);
-					let keys = range.getValues().map(([value]) => value);
-					let index = keys.indexOf(key);
+			// if (["OWNER", "EDIT"].includes(fileAccess)) {
+			if (date) {
+				let sheet = spreadsheet.getSheetByName("doc");
+				let lastRow = sheet.getLastRow();
+				let range = sheet.getRange(2, 1, lastRow - 1);
+				let keys = range.getValues().map(([value]) => value);
+				let index = keys.indexOf(key);
 
-					let resultSec = [key, date, name, desc];
+				let resultSec = [key, date, name, desc];
+
+				if (index >= 0) {
+					sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
+				} else {
+					sheet.appendRow(resultSec);
+				}
+			}
+
+			if (ledger) {
+				let sheet = spreadsheet.getSheetByName("ledger");
+				let lastRow = sheet.getLastRow();
+				let range = sheet.getRange(2, 1, lastRow - 1);
+				let keys = range.getValues().map(([value]) => value);
+
+				ledger.forEach((obj) => {
+					let index = keys.indexOf(obj.key);
+					let { account, amount } = obj;
+
+					let resultSec = [obj.key, key, account, amount];
 
 					if (index >= 0) {
 						sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
 					} else {
 						sheet.appendRow(resultSec);
 					}
-				}
-
-				if (ledger) {
-					let sheet = spreadsheet.getSheetByName("ledger");
-					let lastRow = sheet.getLastRow();
-					let range = sheet.getRange(2, 1, lastRow - 1);
-					let keys = range.getValues().map(([value]) => value);
-
-					ledger.forEach((obj) => {
-						let index = keys.indexOf(obj.key);
-						let { account, amount } = obj;
-
-						let resultSec = [obj.key, key, account, amount];
-
-						if (index >= 0) {
-							sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
-						} else {
-							sheet.appendRow(resultSec);
-						}
-					});
-				}
+				});
 			}
+			// }
 		});
 	});
 

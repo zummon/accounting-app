@@ -91,6 +91,7 @@
 		<div class="grow">Warnings</div>
 		<button
 			class="text-fuchsia-500"
+			type="button"
 			on:click={() => {
 				showWarning = false;
 			}}>
@@ -123,12 +124,14 @@
 	<div class="grow font-semibold">
 		<span class=""> Accounting App </span>
 		<button
-			class="inline-flex items-center gap-2 text-green-500 disabled:text-gray-500"
+			class="inline-flex items-center gap-2 text-green-500 disabled:opacity-0"
+			type="button"
+			disabled={$loading}
 			on:click={() => {
 				getData();
 			}}>
 			<span class="">
-				{new Date($date).toDateString()}
+				{new Date($date).toLocaleDateString()}
 			</span>
 			<span class="">
 				<!-- arrow-path mini heroicons -->
@@ -265,7 +268,9 @@
 			type="button"
 			disabled={$loading}
 			on:click={() => {
-				setData([tran]);
+				if (tran.key) {
+					setData([tran]);
+				}
 			}}>
 			<!-- cloud-arrow-down solid heroicons -->
 			<svg
@@ -305,7 +310,7 @@
 			<div class="w-fit">
 				<div class="mb-2 flex items-center justify-center gap-2 font-semibold">
 					<button
-						class="text-green-500"
+						class="flex items-center gap-2 text-green-500"
 						type="button"
 						on:click={() => {
 							tran.ledger = [
@@ -314,7 +319,7 @@
 								...tran.ledger,
 							];
 						}}>
-						<span class=""> Ledger </span>
+						<span class="">Ledger</span>
 						<span class="">
 							<!-- plus mini heroicons -->
 							<svg

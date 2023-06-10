@@ -22,6 +22,7 @@ export const setData = (data) => {
 			result = JSON.parse(result);
 			date.set(result.date);
 			warnings.set(result.warning);
+			console.log(result);
 			loading.set(false);
 		})
 		.withFailureHandler((error) => {})
