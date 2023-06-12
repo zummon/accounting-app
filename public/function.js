@@ -26,6 +26,26 @@ const getData = () => {
 		});
 	});
 
+	dataset.name = {};
+	source.names.forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+
+		let sheet = spreadsheet.getSheets()[0];
+		let values = sheet.getDataRange().getValues();
+
+		values.slice(1).forEach((cells) => {
+			let [name, id, address, note, dateExist, dateExpire] = cells;
+
+			dataset.name[name] = {
+				id,
+				address,
+				note,
+				dateExist,
+				dateExpire,
+			};
+		});
+	});
+
 	source[""].forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
 		const driveFile = DriveApp.getFileById(id);
@@ -39,12 +59,23 @@ const getData = () => {
 			let values = range.getValues();
 
 			values.slice(1).forEach((cells) => {
-				let [key, date, name, desc] = cells;
+				let [key, date, name, desc, belongTo] = cells;
 
 				date = date.toISOString().slice(0, 16);
 				key = key.toString();
 
-				let resultSec = { date, name, desc };
+				let resultSec = { date, name, desc, belongTo };
+
+				if (dataset.name[name]) {
+					resultSec.nameDetail = dataset.name[name];
+				} else {
+					warning.push(`set of names must have '${name}'`);
+				}
+				if (dataset.name[belongTo]) {
+					resultSec.belongToDetail = dataset.name[belongTo];
+				} else {
+					warning.push(`set of names must have '${belongTo}'`);
+				}
 
 				if (result[key]) {
 					warning.push(`duplicated key '${key}'`);
@@ -104,6 +135,9 @@ const getData = () => {
 			values.slice(1).forEach((cells) => {
 				let [key, docKey, desc, price, qty] = cells;
 
+				key.toString();
+				docKey = docKey.toString();
+
 				let resultThird = { key, desc, price, qty };
 
 				if (uniqueKey[key]) {
@@ -118,6 +152,7 @@ const getData = () => {
 				uniqueKey[key] = true;
 			});
 
+			uniqueKey = {};
 			sheet = spreadsheet.getSheetByName("doc");
 			range = sheet.getDataRange();
 			values = range.getValues();
@@ -125,16 +160,11 @@ const getData = () => {
 			values.slice(1).forEach((cells) => {
 				let [
 					key,
-					docKey,
+					srcKey,
 					lang,
 					doc,
 					currency,
 					duedate,
-					vendorName,
-					vendorid,
-					vendorAddress,
-					clientid,
-					clientAddress,
 					totalAdjust,
 					vatRate,
 					whtRate,
@@ -145,7 +175,7 @@ const getData = () => {
 
 				duedate = duedate.toISOString().slice(0, 16);
 				key = key.toString();
-				docKey = docKey.toString();
+				srcKey = srcKey.toString();
 
 				let resultThird = {
 					key,
@@ -153,24 +183,25 @@ const getData = () => {
 					doc,
 					currency,
 					duedate,
-					vendorName,
-					vendorid,
-					vendorAddress,
-					clientid,
-					clientAddress,
 					totalAdjust,
 					vatRate,
 					whtRate,
 					paymethod,
 					subject,
 					note,
+					...resultSec[key],
 				};
 
-				if (result[docKey].invoice) {
+				if (uniqueKey[key]) {
 					warning.push(`duplicated invoice key '${key}'`);
 				} else {
-					result[docKey].invoice = { ...resultThird, ...resultSec[key] };
+					if (result[srcKey].invoice) {
+						result[srcKey].invoice.push(resultThird);
+					} else {
+						result[srcKey].invoice = [resultThird];
+					}
 				}
+				uniqueKey[key] = true;
 			});
 		}
 	});
@@ -185,7 +216,7 @@ const getData = () => {
 };
 
 const setData = (saves) => {
-	const user = Session.getActiveUser();
+	// const user = Session.getActiveUser();
 
 	let warning = [];
 

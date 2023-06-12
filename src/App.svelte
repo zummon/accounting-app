@@ -522,7 +522,8 @@
 
 <div class="flex flex-wrap p-4">
 	<div class="">
-		<a class="text-green-500" href="https://zummon.page/" target="_blank"
-			>Made by zummon</a>
+		<a class="text-green-500" href="https://zummon.page/" target="_blank">
+			Made by zummon
+		</a>
 	</div>
 </div>
