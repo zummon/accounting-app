@@ -5,9 +5,9 @@
 	import { v4 as uuidv4 } from "uuid";
 
 	let tran = {};
-	let group = {};
+	let pieData = {};
 	let showWarning = false;
-	let pair = {};
+	let barData = {};
 	let showTrans = false;
 	let source = {
 		"": ["1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs"],
@@ -57,22 +57,26 @@
 			.setData({ source, data });
 	};
 
+	$: keys = trans.map((item) => item.key);
+
 	$: {
-		group = {};
+		pieData = {};
 		trans.forEach((item) => {
 			if (Array.isArray(item.ledger)) {
 				item.ledger.forEach((itemSec) => {
+					let seted = accounts[itemSec.account];
 					let value = itemSec.amount;
-					let groupAccount = accounts[itemSec.account].group;
+					let groupAccount = seted.group;
+					let absolute = seted.absolute;
 
-					if (itemSec.absolute) {
+					if (absolute) {
 						value = -value;
 					}
 					if (groupAccount) {
-						if (group[groupAccount]) {
-							group[groupAccount] += value;
+						if (pieData[groupAccount]) {
+							pieData[groupAccount] += value;
 						} else {
-							group[groupAccount] = value;
+							pieData[groupAccount] = value;
 						}
 					}
 				});
@@ -80,32 +84,33 @@
 		});
 	}
 
-	$: keys = trans.map((item) => item.key);
+	$: {
+		barData = {};
+		trans.forEach((item) => {
+			let date = new Date(item.date);
+			if (Array.isArray(item.ledger)) {
+				item.ledger.forEach((itemSec) => {
+					let seted = accounts[itemSec.account];
+					let value = itemSec.amount;
+					let yearMonth = `${date.getFullYear()}/${date.getMonth() + 1}`;
+					let groupAccount = seted.group;
+					let absolute = seted.absolute;
 
-	// $: {
-	// 	pair = {};
-	// 	$trans.forEach((item) => {
-	// 		let date = new Date(item.date)
-	// 		if (Array.isArray(item.ledger)) {
-	// 			item.ledger.forEach((itemSec) => {
-	// 				let value = itemSec.amount;
-	// 				let yearMonth = `${date.getFullYear()}-${date.getMonth()}`
+					if (absolute) {
+						value = -value;
+					}
 
-	// 				if (itemSec.absolute) {
-	// 					value = -value;
-	// 				}
-
-	// 				if (["4 Revenues", "5 Expenses"].includes(itemSec.group)) {
-	// 					if (pair[itemSec.group]) {
-	// 						pair[itemSec.group] += value;
-	// 					} else {
-	// 						pair[itemSec.group] = value;
-	// 					}
-	// 				}
-	// 			});
-	// 		}
-	// 	});
-	// }
+					if (groupAccount == "Revenues") {
+						if (barData[yearMonth]) {
+							barData[yearMonth] += value;
+						} else {
+							barData[yearMonth] = value;
+						}
+					}
+				});
+			}
+		});
+	}
 
 	onMount(() => {
 		getData();
@@ -291,43 +296,37 @@
 
 <div class="container mx-auto p-4">
 	<div class="flex flex-wrap items-center justify-center gap-4">
-		<div class="aspect-video">
-			{#key group}
-				<Doughnut
-					data={{
-						labels: Object.keys(group),
-						datasets: [
-							{
-								data: Object.values(group),
-								backgroundColor: [
-									"rgb(255, 105, 96)",
-									"rgb(255, 142, 0)",
-									"rgb(255, 187, 51)",
-									"rgb(255, 223, 102)",
-									"rgb(255, 255, 153)",
-								],
-							},
-						],
-					}}
-					options={{ plugins: { legend: false } }} />
-			{/key}
-		</div>
-		<div class="aspect-video">
-			<!-- <Bar
+		<div class="aspect-video h-80">
+			<Doughnut
 				data={{
-					labels: [],
+					labels: Object.keys(pieData),
 					datasets: [
 						{
-							data: [],
-							backgroundColor: ["rgb(98,  182, 239)"],
-						},
-						{
-							data: [],
-							backgroundColor: ["rgb(170, 128, 252)"],
+							data: Object.values(pieData),
+							backgroundColor: [
+								"rgb(255, 105, 96)",
+								"rgb(255, 142, 0)",
+								"rgb(255, 187, 51)",
+								"rgb(255, 223, 102)",
+								"rgb(255, 255, 153)",
+							],
 						},
 					],
 				}}
-				options={{ plugins: { legend: false } }} /> -->
+				options={{ plugins: { legend: false } }} />
+		</div>
+		<div class="aspect-video h-80">
+			<Bar
+				data={{
+					labels: Object.keys(barData),
+					datasets: [
+						{
+							data: Object.values(barData),
+							backgroundColor: ["rgb(98,  182, 239)"],
+						},
+					],
+				}}
+				options={{ plugins: { legend: false } }} />
 		</div>
 	</div>
 </div>
@@ -573,7 +572,7 @@
 	</div>
 </div>
 
-<div class="flex flex-wrap p-4">
+<div class="flex flex-wrap justify-center p-4">
 	<div class="">
 		<a class="text-green-500" href="https://zummon.page/" target="_blank">
 			Made by zummon
