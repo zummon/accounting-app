@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 	import { filterTrans } from "../lib/store";
 </script>
 
@@ -42,4 +42,4 @@
 			</td>
 		</tr>
 	</tfoot>
-</table>
+</table> -->

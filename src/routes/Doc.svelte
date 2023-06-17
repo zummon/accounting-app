@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 	import { filterTrans } from "../lib/store";
 </script>
 
@@ -59,4 +59,4 @@
 			<td class="px-4 py-2 text-right" />
 		</tr>
 	</tfoot>
-</table>
+</table> -->

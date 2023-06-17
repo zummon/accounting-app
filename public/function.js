@@ -1,50 +1,10 @@
-const getData = () => {
+const getData = ({ source }) => {
 	const user = Session.getActiveUser();
 
-	let result = {};
-	let warning = [];
-	let dataset = {};
+	let data = {};
+	let warnings = [];
 	let date = new Date().toJSON();
-
-	dataset.account = {};
-	source.accounts.forEach((id) => {
-		const spreadsheet = SpreadsheetApp.openById(id);
-
-		let sheet = spreadsheet.getSheets()[0];
-		let values = sheet.getDataRange().getValues();
-
-		values.slice(1).forEach((cells) => {
-			let [account, note, group, groupSec, groupThird, absolute] = cells;
-
-			dataset.account[account] = {
-				note,
-				group,
-				groupSec,
-				groupThird,
-				absolute,
-			};
-		});
-	});
-
-	dataset.name = {};
-	source.names.forEach((id) => {
-		const spreadsheet = SpreadsheetApp.openById(id);
-
-		let sheet = spreadsheet.getSheets()[0];
-		let values = sheet.getDataRange().getValues();
-
-		values.slice(1).forEach((cells) => {
-			let [name, id, address, note, dateExist, dateExpire] = cells;
-
-			dataset.name[name] = {
-				id,
-				address,
-				note,
-				dateExist,
-				dateExpire,
-			};
-		});
-	});
+	let dataset = { accounts: {}, names: {} };
 
 	source[""].forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
@@ -54,6 +14,7 @@ const getData = () => {
 		let fileShare = driveFile.getSharingAccess();
 
 		if (fileAccess !== "NONE" || fileShare.startsWith("ANYONE")) {
+			let uniqueKey = {};
 			let sheet = spreadsheet.getSheetByName("doc");
 			let range = sheet.getDataRange();
 			let values = range.getValues();
@@ -64,27 +25,15 @@ const getData = () => {
 				date = date.toISOString().slice(0, 16);
 				key = key.toString();
 
-				let resultSec = { date, name, desc, belongTo };
+				let result = { date, name, desc, belongTo };
 
-				if (dataset.name[name]) {
-					resultSec.nameDetail = dataset.name[name];
+				if (data[key]) {
+					warnings.push(`duplicated key "${key}"`);
 				} else {
-					warning.push(`set of names must have '${name}'`);
-				}
-				if (dataset.name[belongTo]) {
-					resultSec.belongToDetail = dataset.name[belongTo];
-				} else {
-					warning.push(`set of names must have '${belongTo}'`);
-				}
-
-				if (result[key]) {
-					warning.push(`duplicated key '${key}'`);
-				} else {
-					result[key] = resultSec;
+					data[key] = result;
 				}
 			});
 
-			let uniqueKey = {};
 			sheet = spreadsheet.getSheetByName("ledger");
 			range = sheet.getDataRange();
 			values = range.getValues();
@@ -95,21 +44,19 @@ const getData = () => {
 				key = key.toString();
 				docKey = docKey.toString();
 
-				let resultSec = { key, account, amount };
-
-				if (dataset.account[account]) {
-					resultSec = { ...resultSec, ...dataset.account[account] };
-				} else {
-					warning.push(`set of accounts must have '${account}'`);
-				}
+				let result = { key, account, amount };
 
 				if (uniqueKey[key]) {
-					warning.push(`duplicated ledger key '${key}'`);
+					warnings.push(`duplicated ledger key "${key}"`);
 				} else {
-					if (result[docKey].ledger) {
-						result[docKey].ledger.push(resultSec);
+					if (data[docKey]) {
+						if (data[docKey].ledger) {
+							data[docKey].ledger.push(result);
+						} else {
+							data[docKey].ledger = [result];
+						}
 					} else {
-						result[docKey].ledger = [resultSec];
+						warnings.push(`ledger has unexpected key "${key}"`);
 					}
 				}
 				uniqueKey[key] = true;
@@ -117,7 +64,7 @@ const getData = () => {
 		}
 	});
 
-	source.invoice.forEach((id) => {
+	source["invoice"].forEach((id) => {
 		const spreadsheet = SpreadsheetApp.openById(id);
 		const driveFile = DriveApp.getFileById(id);
 
@@ -125,9 +72,8 @@ const getData = () => {
 		let fileShare = driveFile.getSharingAccess();
 
 		if (fileAccess !== "NONE" || fileShare.startsWith("ANYONE")) {
-			let resultSec = {};
-
 			let uniqueKey = {};
+			let item = {};
 			let sheet = spreadsheet.getSheetByName("item");
 			let range = sheet.getDataRange();
 			let values = range.getValues();
@@ -135,18 +81,18 @@ const getData = () => {
 			values.slice(1).forEach((cells) => {
 				let [key, docKey, desc, price, qty] = cells;
 
-				key.toString();
+				key = key.toString();
 				docKey = docKey.toString();
 
-				let resultThird = { key, desc, price, qty };
+				let result = { key, desc, price, qty };
 
 				if (uniqueKey[key]) {
-					warning.push(`duplicated invoice item key '${key}'`);
+					warnings.push(`duplicated invoice item key "${key}"`);
 				} else {
-					if (resultSec[docKey]) {
-						resultSec[docKey].items.push(resultThird);
+					if (item[docKey]) {
+						item[docKey].push(result);
 					} else {
-						resultSec[docKey] = { items: [resultThird] };
+						item[docKey] = [result];
 					}
 				}
 				uniqueKey[key] = true;
@@ -177,7 +123,7 @@ const getData = () => {
 				key = key.toString();
 				srcKey = srcKey.toString();
 
-				let resultThird = {
+				let result = {
 					key,
 					lang,
 					doc,
@@ -189,60 +135,120 @@ const getData = () => {
 					paymethod,
 					subject,
 					note,
-					...resultSec[key],
+					item: item[key].slice(),
 				};
 
+				delete item[key];
+
 				if (uniqueKey[key]) {
-					warning.push(`duplicated invoice key '${key}'`);
+					warnings.push(`duplicated invoice key "${key}"`);
 				} else {
-					if (result[srcKey].invoice) {
-						result[srcKey].invoice.push(resultThird);
+					if (data[srcKey]) {
+						if (data[srcKey].invoice) {
+							data[srcKey].invoice.push(result);
+						} else {
+							data[srcKey].invoice = [result];
+						}
 					} else {
-						result[srcKey].invoice = [resultThird];
+						warnings.push(`invoice has unexpected key "${key}"`);
 					}
 				}
 				uniqueKey[key] = true;
 			});
+
+			// if (item) {
+			// 	warnings.push(`invoice item has unexpected key "${key}"`);
+			// }
 		}
 	});
 
-	result = Object.entries(result).map(([key, obj]) => {
+	source["accounts"].forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+
+		let sheet = spreadsheet.getSheetByName("coa");
+		let values = sheet.getDataRange().getValues();
+
+		values.slice(1).forEach((cells) => {
+			let [account, note, group, groupSec, groupThird, absolute, dateExpire] =
+				cells;
+
+			if (dateExpire) {
+				dateExpire = dateExpire.toISOString().slice(0, 16);
+			}
+			account = account.toString();
+
+			let resultSec = {
+				note,
+				group,
+				groupSec,
+				groupThird,
+				absolute,
+				dateExpire,
+			};
+
+			dataset.accounts[account] = resultSec;
+		});
+	});
+
+	source["names"].forEach((id) => {
+		const spreadsheet = SpreadsheetApp.openById(id);
+
+		let sheet = spreadsheet.getSheetByName("register");
+		let values = sheet.getDataRange().getValues();
+
+		values.slice(1).forEach((cells) => {
+			let [name, id, address, note, dateExpire] = cells;
+
+			if (dateExpire) {
+				dateExpire = dateExpire.toISOString().slice(0, 16);
+			}
+			name = name.toString();
+
+			let resultSec = { id, address, note, dateExpire };
+
+			dataset.names[name] = resultSec;
+		});
+	});
+
+	data = Object.entries(data).map(([key, obj]) => {
 		return { key, ...obj };
 	});
 
-	result = JSON.stringify({ data: result, date, warning });
+	let json = JSON.stringify({ data, date, warnings, dataset });
 
-	return result;
+	return json;
 };
 
-const setData = (saves) => {
-	// const user = Session.getActiveUser();
+const setData = ({ source, data }) => {
+	const user = Session.getActiveUser();
 
-	let warning = [];
+	let warnings = [];
 
-	saves = JSON.parse(saves);
+	data = JSON.parse(data);
 
-	saves.forEach((save) => {
-		let { key, date, name, desc, ledger } = save;
+	data.forEach((item) => {
+		let { key, date, name, desc, belongTo, ledger, invoice } = item;
 
 		source[""].forEach((id) => {
 			const spreadsheet = SpreadsheetApp.openById(id);
-			// const driveFile = DriveApp.getFileById(id);
+			const driveFile = DriveApp.getFileById(id);
 
-			// let fileAccess = driveFile.getAccess(user);
+			let fileAccess = driveFile.getAccess(user);
 
-			// if (["OWNER", "EDIT"].includes(fileAccess)) {
-			if (date) {
+			// if (["OWNER", "EDIT", "COMMENT"].includes(fileAccess)) {
+			if (key) {
 				let sheet = spreadsheet.getSheetByName("doc");
 				let lastRow = sheet.getLastRow();
 				let range = sheet.getRange(2, 1, lastRow - 1);
 				let keys = range.getValues().map(([value]) => value.toString());
 				let index = keys.indexOf(key);
 
-				let resultSec = [key, date, name, desc];
+				let resultSec = [key, date, name, desc, belongTo];
 
 				if (index >= 0) {
-					sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
+					sheet
+						.getRange(index + 2, 1, 1, resultSec.length)
+						.setValues([resultSec]);
 				} else {
 					sheet.appendRow(resultSec);
 				}
@@ -261,7 +267,9 @@ const setData = (saves) => {
 					let resultSec = [obj.key, key, account, amount];
 
 					if (index >= 0) {
-						sheet.getRange(index + 2, 1, 1, 4).setValues([resultSec]);
+						sheet
+							.getRange(index + 2, 1, 1, resultSec.length)
+							.setValues([resultSec]);
 					} else {
 						sheet.appendRow(resultSec);
 					}
@@ -269,11 +277,90 @@ const setData = (saves) => {
 			}
 			// }
 		});
+
+		if (invoice) {
+			invoice.forEach((obj) => {
+				let {
+					lang,
+					doc,
+					currency,
+					duedate,
+					totalAdjust,
+					vatRate,
+					whtRate,
+					paymethod,
+					subject,
+					note,
+					item,
+				} = obj;
+
+				source["invoice"].forEach((id) => {
+					const spreadsheet = SpreadsheetApp.openById(id);
+					const driveFile = DriveApp.getFileById(id);
+
+					let fileAccess = driveFile.getAccess(user);
+
+					if (["OWNER", "EDIT", "COMMENT"].includes(fileAccess)) {
+						if (obj.key) {
+							let sheet = spreadsheet.getSheetByName("doc");
+							let lastRow = sheet.getLastRow();
+							let range = sheet.getRange(2, 1, lastRow - 1);
+							let keys = range.getValues().map(([value]) => value.toString());
+							let index = keys.indexOf(obj.key);
+
+							let resultSec = [
+								obj.key,
+								key,
+								lang,
+								doc,
+								currency,
+								duedate,
+								totalAdjust,
+								vatRate,
+								whtRate,
+								paymethod,
+								subject,
+								note,
+							];
+
+							if (index >= 0) {
+								sheet
+									.getRange(index + 2, 1, 1, resultSec.length)
+									.setValues([resultSec]);
+							} else {
+								sheet.appendRow(resultSec);
+							}
+						}
+
+						if (item) {
+							let sheet = spreadsheet.getSheetByName("item");
+							let lastRow = sheet.getLastRow();
+							let range = sheet.getRange(2, 1, lastRow - 1);
+							let keys = range.getValues().map(([value]) => value.toString());
+
+							ledger.forEach((objSec) => {
+								let index = keys.indexOf(objSec.key);
+								let { desc, price, qty } = objSec;
+
+								let resultSec = [objSec.key, obj.key, desc, price, qty];
+
+								if (index >= 0) {
+									sheet
+										.getRange(index + 2, 1, 1, resultSec.length)
+										.setValues([resultSec]);
+								} else {
+									sheet.appendRow(resultSec);
+								}
+							});
+						}
+					}
+				});
+			});
+		}
 	});
 
 	let date = new Date().toJSON();
+	let json = JSON.stringify({ date, warnings });
 
-	result = JSON.stringify({ date, warning });
-
-	return result;
+	return json;
 };

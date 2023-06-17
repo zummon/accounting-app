@@ -1,46 +1,86 @@
 <script>
 	import "chart.js/auto";
 	import { onMount } from "svelte";
-	import {
-		loading,
-		date,
-		warnings,
-		trans,
-		names,
-		accounts,
-		keys,
-	} from "./lib/store";
 	import { Doughnut, Bar } from "svelte-chartjs";
 	import { v4 as uuidv4 } from "uuid";
-	import { getData, setData } from "./lib/function";
 
 	let tran = {};
 	let group = {};
 	let showWarning = false;
 	let pair = {};
 	let showTrans = false;
+	let source = {
+		"": ["1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs"],
+		invoice: ["1fFGmZnAJjNvyuF8gC-KuvGKmwj4OtpDu07abKh2i2As"],
+		accounts: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
+		names: ["108gT2so0W2R6uEXpsMigngr_4yzFq6NKddQKCziGcCg"],
+	};
+	let date = new Date().toJSON();
+	let loading = true;
+	let warnings = [];
+	let trans = [];
+	let accounts = {};
+	let names = {};
+	let error = "";
+
+	const getData = () => {
+		loading = true;
+		google.script.run
+			.withSuccessHandler((result) => {
+				result = JSON.parse(result);
+				trans = result.data;
+				date = result.date;
+				warnings = result.warnings;
+				accounts = result.dataset.accounts;
+				names = result.dataset.names;
+				loading = false;
+			})
+			.withFailureHandler((result) => {
+				error = result.message;
+			})
+			.getData({ source });
+	};
+
+	const setData = (data) => {
+		loading = true;
+		data = JSON.stringify(data);
+		google.script.run
+			.withSuccessHandler((result) => {
+				result = JSON.parse(result);
+				date = result.date;
+				warnings = result.warnings;
+				loading = false;
+			})
+			.withFailureHandler((result) => {
+				error = result.message;
+			})
+			.setData({ source, data });
+	};
 
 	$: {
 		group = {};
-		$trans.forEach((item) => {
+		trans.forEach((item) => {
 			if (Array.isArray(item.ledger)) {
 				item.ledger.forEach((itemSec) => {
 					let value = itemSec.amount;
+					let groupAccount = accounts[itemSec.account].group;
 
 					if (itemSec.absolute) {
 						value = -value;
 					}
-					if (itemSec.group) {
-						if (group[itemSec.group]) {
-							group[itemSec.group] += value;
+					if (groupAccount) {
+						if (group[groupAccount]) {
+							group[groupAccount] += value;
 						} else {
-							group[itemSec.group] = value;
+							group[groupAccount] = value;
 						}
 					}
 				});
 			}
 		});
 	}
+
+	$: keys = trans.map((item) => item.key);
 
 	// $: {
 	// 	pair = {};
@@ -73,23 +113,33 @@
 </script>
 
 <datalist id="keys">
-	{#each $keys as value, index (`keys-${index}`)}
+	{#each keys as value, index (`keys-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
 <datalist id="names">
-	{#each $names as value, index (`names-${index}`)}
+	{#each Object.keys(names) as value, index (`names-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
 <datalist id="accounts">
-	{#each $accounts as value, index (`accounts-${index}`)}
+	{#each Object.keys(accounts) as value, index (`accounts-${index}`)}
 		<option {value} />
 	{/each}
 </datalist>
 
-<dialog class="bg-transparent backdrop:bg-black/20" open={showWarning}>
-	<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300">
+<dialog class="bg-transparent" open={error}>
+	<div
+		class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300 dark:bg-gray-800 dark:text-white">
+		<div class="font-semibold text-fuchsia-500">
+			{error}
+		</div>
+	</div>
+</dialog>
+
+<dialog class="bg-transparent" open={showWarning}>
+	<div
+		class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold">Warnings</div>
 			<button
@@ -114,14 +164,14 @@
 			</button>
 		</div>
 		<ul class="">
-			{#each $warnings as item, index (`warnings-${index}`)}
+			{#each warnings as item, index (`warnings-${index}`)}
 				<li class="">{item}</li>
 			{/each}
 		</ul>
 	</div>
 </dialog>
 
-<dialog class="bg-transparent backdrop:bg-black/20" open={showTrans}>
+<dialog class="bg-transparent" open={showTrans}>
 	<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold">Transactions</div>
@@ -147,7 +197,7 @@
 			</button>
 		</div>
 		<div class="">
-			{#each $trans as item, index (`trans-${index}`)}
+			{#each trans as item, index (`trans-${index}`)}
 				<div class="mb-2 flex gap-2">
 					<button
 						class="flex items-center gap-2 text-green-500"
@@ -191,15 +241,15 @@
 		<button
 			class="inline-flex items-center gap-2 text-green-500 disabled:text-gray-500"
 			type="button"
-			disabled={$loading}
+			disabled={loading}
 			on:click={() => {
 				getData();
 			}}>
 			<span class="">
-				{new Date($date).toLocaleDateString()}
+				{new Date(date).toLocaleDateString()}
 			</span>
 			<span class="">
-				{new Date($date).toLocaleTimeString()}
+				{new Date(date).toLocaleTimeString()}
 			</span>
 			<span class="">
 				<!-- arrow-path mini heroicons -->
@@ -220,7 +270,7 @@
 		<button
 			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
 			type="button"
-			disabled={$warnings.length == 0}
+			disabled={warnings.length == 0}
 			on:click={() => {
 				showWarning = true;
 			}}>
@@ -309,7 +359,7 @@
 			on:click={() => {
 				showTrans = true;
 			}}>
-			<!-- list-bullet outline heroicons -->
+			<!-- magnifying-glass outline heroicons -->
 			<svg
 				class="h-6 w-6"
 				xmlns="http://www.w3.org/2000/svg"
@@ -320,30 +370,35 @@
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
-					d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+					d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
 			</svg>
 		</button>
 	</div>
 	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
 		<input
-			class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 disabled:text-gray-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 disabled:text-gray-500"
 			type="text"
 			list="keys"
 			disabled
 			bind:value={tran.key} />
 		<input
-			class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 			type="datetime-local"
 			bind:value={tran.date} />
 		<input
-			class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 			type="text"
 			list="names"
 			bind:value={tran.name} />
 		<textarea
-			class="grow rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="grow rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 			rows="1"
 			bind:value={tran.desc} />
+		<input
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			type="text"
+			list="names"
+			bind:value={tran.belongTo} />
 	</div>
 	<div class="mb-4 flex flex-wrap justify-center gap-2">
 		<div class="">
@@ -377,12 +432,12 @@
 					{#each tran.ledger as item, index (`tran-ledger-${index}`)}
 						<div class="mb-2 flex gap-2">
 							<input
-								class="rounded-full border-0 px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 								type="text"
 								list="accounts"
 								bind:value={item.account} />
 							<input
-								class="rounded-full border-0 px-3 py-2 text-right shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								class="rounded-full border-0 bg-transparent px-3 py-2 text-right shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
 								type="number"
 								bind:value={item.amount} />
 							<button
@@ -477,12 +532,10 @@
 		<button
 			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
 			type="button"
-			disabled={$loading}
+			disabled={loading}
 			on:click={() => {
 				if (tran.key) {
-					setData([tran], () => {
-						tran = {};
-					});
+					setData([tran]);
 				}
 			}}>
 			<!-- cloud-arrow-down solid heroicons -->
