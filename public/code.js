@@ -169,8 +169,16 @@ const getData = ({ source }) => {
 		let values = sheet.getDataRange().getValues();
 
 		values.slice(1).forEach((cells) => {
-			let [account, note, group, groupSec, groupThird, absolute, dateExpire] =
-				cells;
+			let [
+				account,
+				note,
+				group,
+				groupSec,
+				groupThird,
+				absolute,
+				dateExpire,
+				code,
+			] = cells;
 
 			if (dateExpire) {
 				dateExpire = dateExpire.toISOString().slice(0, 16);
@@ -184,6 +192,7 @@ const getData = ({ source }) => {
 				groupThird,
 				absolute,
 				dateExpire,
+				code,
 			};
 
 			dataset.accounts[account] = resultSec;

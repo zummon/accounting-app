@@ -15,7 +15,7 @@
 		accounts: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
 		names: ["108gT2so0W2R6uEXpsMigngr_4yzFq6NKddQKCziGcCg"],
 	};
-	let date = new Date().toJSON();
+	let date = new Date();
 	let loading = true;
 	let warnings = [];
 	let trans = [];
@@ -29,7 +29,7 @@
 			.withSuccessHandler((result) => {
 				result = JSON.parse(result);
 				trans = result.data;
-				date = result.date;
+				date = new Date(result.date);
 				warnings = result.warnings;
 				accounts = result.dataset.accounts;
 				names = result.dataset.names;
@@ -133,20 +133,20 @@
 	{/each}
 </datalist>
 
-<dialog class="bg-transparent" open={error}>
+<dialog class="my-auto bg-transparent" open={error}>
 	<div
-		class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300 dark:bg-gray-800 dark:text-white">
+		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="font-semibold text-fuchsia-500">
 			{error}
 		</div>
 	</div>
 </dialog>
 
-<dialog class="bg-transparent" open={showWarning}>
+<dialog class="my-auto bg-transparent" open={showWarning}>
 	<div
-		class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300 dark:bg-gray-800 dark:text-white">
+		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
-			<div class="grow font-semibold">Warnings</div>
+			<div class="grow font-semibold text-fuchsia-500">Warnings</div>
 			<button
 				class="text-fuchsia-500"
 				type="button"
@@ -168,16 +168,17 @@
 				</svg>
 			</button>
 		</div>
-		<ul class="">
+		<ol class="list-decimal">
 			{#each warnings as item, index (`warnings-${index}`)}
 				<li class="">{item}</li>
 			{/each}
-		</ul>
+		</ol>
 	</div>
 </dialog>
 
-<dialog class="bg-transparent" open={showTrans}>
-	<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-300">
+<dialog class="my-auto bg-transparent" open={showTrans}>
+	<div
+		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold">Transactions</div>
 			<button
@@ -251,15 +252,19 @@
 				getData();
 			}}>
 			<span class="">
-				{new Date(date).toLocaleDateString()}
-			</span>
-			<span class="">
-				{new Date(date).toLocaleTimeString()}
+				{date.toLocaleDateString(undefined, {
+					day: "numeric",
+					month: "short",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				})}
 			</span>
 			<span class="">
 				<!-- arrow-path mini heroicons -->
 				<svg
 					class="h-5 w-5"
+					class:animate-spin={loading}
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 20 20"
 					fill="currentColor">
@@ -273,9 +278,9 @@
 	</div>
 	<div class="">
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-transparent disabled:text-gray-500 disabled:shadow-none dark:shadow-green-800"
 			type="button"
-			disabled={warnings.length == 0}
+			disabled={!warnings[0]}
 			on:click={() => {
 				showWarning = true;
 			}}>
@@ -334,7 +339,7 @@
 <div class="container mx-auto p-4">
 	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 dark:shadow-green-800"
 			type="button"
 			on:click={() => {
 				tran = { key: uuidv4() };
@@ -354,7 +359,7 @@
 			</svg>
 		</button>
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 dark:shadow-green-800"
 			on:click={() => {
 				showTrans = true;
 			}}>
@@ -375,26 +380,26 @@
 	</div>
 	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
 		<input
-			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500 disabled:text-gray-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500 disabled:text-gray-500"
 			type="text"
 			list="keys"
 			disabled
 			bind:value={tran.key} />
 		<input
-			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 			type="datetime-local"
 			bind:value={tran.date} />
 		<input
-			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 			type="text"
 			list="names"
 			bind:value={tran.name} />
 		<textarea
-			class="grow rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="grow rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 			rows="1"
 			bind:value={tran.desc} />
 		<input
-			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+			class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 			type="text"
 			list="names"
 			bind:value={tran.belongTo} />
@@ -430,13 +435,16 @@
 				<div class="">
 					{#each tran.ledger as item, index (`tran-ledger-${index}`)}
 						<div class="mb-2 flex gap-2">
+							<div class="text-gray-500">
+								{accounts[item.account] ? accounts[item.account].group : ""}
+							</div>
 							<input
-								class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								class="rounded-full border-0 bg-transparent px-3 py-2 shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 								type="text"
 								list="accounts"
 								bind:value={item.account} />
 							<input
-								class="rounded-full border-0 bg-transparent px-3 py-2 text-right shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-green-500"
+								class="rounded-full border-0 bg-transparent px-3 py-2 text-right shadow-sm ring-1 ring-gray-500 focus:ring-2 focus:ring-green-500"
 								type="number"
 								bind:value={item.amount} />
 							<button
@@ -468,7 +476,7 @@
 				</div>
 			{:else}
 				<button
-					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 dark:shadow-green-800"
 					type="button"
 					on:click={() => {
 						tran.ledger = [{ key: uuidv4() }, { key: uuidv4() }];
@@ -502,7 +510,7 @@
 				</div>
 			{:else}
 				<button
-					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500"
+					class="inline-flex gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 dark:shadow-green-800"
 					type="button"
 					on:click={() => {
 						tran.invoice = { key: uuidv4() };
@@ -529,7 +537,7 @@
 	</div>
 	<div class="flex flex-wrap items-center justify-center gap-2">
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-white disabled:text-gray-500 disabled:shadow-none"
+			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-transparent disabled:text-gray-500 disabled:shadow-none dark:shadow-green-800"
 			type="button"
 			disabled={loading}
 			on:click={() => {
@@ -550,7 +558,7 @@
 			</svg>
 		</button>
 		<button
-			class="rounded-full bg-fuchsia-500 px-4 py-2 font-semibold text-white shadow-md shadow-fuchsia-200 transition duration-300 hover:bg-white hover:text-fuchsia-500 hover:shadow-none hover:ring-1 hover:ring-fuchsia-500 focus:bg-white focus:text-fuchsia-500 focus:shadow-none focus:ring-2 focus:ring-fuchsia-500"
+			class="rounded-full bg-fuchsia-500 px-4 py-2 font-semibold text-white shadow-md shadow-fuchsia-200 transition duration-300 hover:bg-white hover:text-fuchsia-500 hover:shadow-none hover:ring-1 hover:ring-fuchsia-500 focus:bg-white focus:text-fuchsia-500 focus:shadow-none focus:ring-2 focus:ring-fuchsia-500 dark:shadow-fuchsia-800"
 			type="button"
 			on:click={() => {
 				tran = {};
