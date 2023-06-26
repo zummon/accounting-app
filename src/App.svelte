@@ -572,10 +572,6 @@
 	</div>
 </div>
 
-<div class="flex flex-wrap justify-center p-4">
-	<div class="">
-		<a class="text-green-500" href="https://zummon.page/" target="_blank">
-			Made by zummon
-		</a>
-	</div>
+<div class="p-4 text-center print:hidden">
+	Made by zummon (Teerapat Anantarattanachai)
 </div>
