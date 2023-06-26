@@ -133,18 +133,18 @@
 	{/each}
 </datalist>
 
-<dialog class="my-auto bg-transparent" open={error}>
+<dialog class="inset-0 bg-black bg-opacity-30" open={error}>
 	<div
-		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
+		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="font-semibold text-fuchsia-500">
 			{error}
 		</div>
 	</div>
 </dialog>
 
-<dialog class="my-auto bg-transparent" open={showWarning}>
+<dialog class="inset-0 bg-black bg-opacity-30" open={showWarning}>
 	<div
-		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
+		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold text-fuchsia-500">Warnings</div>
 			<button
@@ -176,13 +176,13 @@
 	</div>
 </dialog>
 
-<dialog class="my-auto bg-transparent" open={showTrans}>
+<dialog class="inset-0 bg-black bg-opacity-30" open={showTrans}>
 	<div
-		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
+		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold">Transactions</div>
 			<button
-				class="text-fuchsia-500"
+				class=""
 				type="button"
 				on:click={() => {
 					showTrans = false;
@@ -212,17 +212,6 @@
 							tran = item;
 							showTrans = false;
 						}}>
-						<span class="">
-							<!-- pencil solid heroicons -->
-							<svg
-								class="h-6 w-6"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="currentColor">
-								<path
-									d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
-							</svg>
-						</span>
 						<span class="max-w-lg grow truncate">
 							<span class="">
 								{new Date(item.date).toDateString()}
@@ -278,9 +267,10 @@
 	</div>
 	<div class="">
 		<button
-			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-transparent disabled:text-gray-500 disabled:shadow-none dark:shadow-green-800"
+			class="rounded-full px-4 py-2 font-semibold shadow-fuchsia-200 transition duration-300 hover:text-fuchsia-500 hover:shadow-none hover:ring-1 hover:ring-fuchsia-500 focus:text-fuchsia-500 focus:shadow-none focus:ring-2 focus:ring-fuchsia-500 dark:shadow-fuchsia-800 {warnings[0]
+				? 'bg-fuchsia-500 text-white shadow-md hover:bg-white focus:bg-white'
+				: 'bg-transparent text-gray-500 shadow-none'}"
 			type="button"
-			disabled={!warnings[0]}
 			on:click={() => {
 				showWarning = true;
 			}}>
@@ -315,6 +305,7 @@
 								"rgb(255, 223, 102)",
 								"rgb(255, 255, 153)",
 							],
+							borderWidth: 0,
 						},
 					],
 				}}
@@ -327,7 +318,13 @@
 					datasets: [
 						{
 							data: Object.values(barData),
-							backgroundColor: ["rgb(98,  182, 239)"],
+							backgroundColor: [
+								"rgb(0, 177, 255)",
+								"rgb(135, 206, 235)",
+								"rgb(75, 195, 247)",
+								"rgb(0, 255, 255)",
+								"rgb(173, 216, 230)",
+							],
 						},
 					],
 				}}
