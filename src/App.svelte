@@ -4,27 +4,6 @@
 	import { Doughnut, Bar } from "svelte-chartjs";
 	import { v4 as uuidv4 } from "uuid";
 
-	let keys = [];
-	let tran = {};
-	let pieData = {};
-	let showWarning = false;
-	let barData = {};
-	let showTrans = false;
-	let date = new Date();
-	let loading = true;
-	let warnings = [];
-	let trans = [];
-	let accounts = {};
-	let names = {};
-	let error = "";
-	let route = "";
-	let source = {
-		"": ["1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs"],
-		invoice: ["1fFGmZnAJjNvyuF8gC-KuvGKmwj4OtpDu07abKh2i2As"],
-		accounts: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
-		names: ["108gT2so0W2R6uEXpsMigngr_4yzFq6NKddQKCziGcCg"],
-	};
-
 	const getData = () => {
 		loading = true;
 		google.script.run
@@ -58,6 +37,24 @@
 			})
 			.setData({ source, data });
 	};
+
+	let tran = {};
+	let showTrans = false;
+	let date = new Date();
+	let loading = true;
+	let warnings = [];
+	let trans = [];
+	let accounts = {};
+	let names = {};
+	let error = "";
+	let route = "";
+	let source = {
+		"": ["1S9bRkCnI-rVvy4ZxcVPejWBiNpw2lMJeVcOXq_t66Rs"],
+		invoice: ["1fFGmZnAJjNvyuF8gC-KuvGKmwj4OtpDu07abKh2i2As"],
+		accounts: ["1UydCQCoylxCiooiGLYlH_EbFkoKq9eiL8iinB03c37k"],
+		names: ["108gT2so0W2R6uEXpsMigngr_4yzFq6NKddQKCziGcCg"],
+	};
+	let warningElement;
 
 	$: keys = trans.map((item) => item.key);
 
@@ -131,27 +128,16 @@
 	{/each}
 </datalist>
 
-<dialog class="inset-0 h-screen w-screen bg-black bg-opacity-30" open={error}>
+<dialog class="" bind:this={warningElement}>
 	<div
-		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
-		<div class="font-semibold text-fuchsia-500">
-			{error}
-		</div>
-	</div>
-</dialog>
-
-<dialog
-	class="inset-0 h-screen w-screen bg-black bg-opacity-30"
-	open={showWarning}>
-	<div
-		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
+		class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
 		<div class="mb-4 flex gap-2">
 			<div class="grow font-semibold text-fuchsia-500">Warnings</div>
 			<button
 				class="text-fuchsia-500"
 				type="button"
 				on:click={() => {
-					showWarning = false;
+					warningElement.close();
 				}}>
 				<!-- x-mark outline heroicons -->
 				<svg
@@ -176,69 +162,17 @@
 	</div>
 </dialog>
 
-<dialog
-	class="inset-0 h-screen w-screen bg-black bg-opacity-30"
-	open={showTrans}>
-	<div
-		class="max-h-screen overflow-auto rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
-		<div class="mb-4 flex gap-2">
-			<div class="grow font-semibold">Transactions</div>
-			<button
-				class=""
-				type="button"
-				on:click={() => {
-					showTrans = false;
-				}}>
-				<!-- x-mark outline heroicons -->
-				<svg
-					class="h-6 w-6"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M6 18L18 6M6 6l12 12" />
-				</svg>
-			</button>
-		</div>
-		<div class="">
-			{#each trans as item, index (`trans-${index}`)}
-				<div class="mb-2 flex gap-2">
-					<button
-						class="flex items-center gap-2 text-green-500"
-						type="button"
-						on:click={() => {
-							tran = item;
-							showTrans = false;
-						}}>
-						<div class="max-w-lg grow truncate">
-							<span class="">
-								{new Date(item.date).toDateString()}
-							</span>
-							<span class="">
-								{item.name}
-							</span>
-							<span class="">
-								{item.desc}
-							</span>
-						</div>
-					</button>
-				</div>
-			{/each}
-		</div>
-	</div>
-</dialog>
-
 <div class="flex flex-wrap items-center justify-end p-4">
 	<div class="grow">
 		<span class="font-semibold">Accounting App</span>
+		<span class="font-semibold text-fuchsia-500" class:hidden={!error}>
+			{error}
+		</span>
 		<button
 			class="inline-flex items-center gap-2 {loading
 				? 'text-gray-500'
 				: 'text-green-500'}"
+			class:hidden={error}
 			type="button"
 			on:click={() => {
 				getData();
@@ -275,7 +209,7 @@
 				: 'bg-transparent text-gray-500 shadow-none'}"
 			type="button"
 			on:click={() => {
-				showWarning = true;
+				warningElement.showModal();
 			}}>
 			<!-- exclamation-triangle solid heroicons -->
 			<svg
@@ -427,7 +361,7 @@
 				list="names"
 				bind:value={tran.belongTo} />
 		</div>
-		<div class="">
+		<div class="mb-4">
 			{#if tran.ledger}
 				<div class="mb-2 flex items-center justify-center gap-2 font-semibold">
 					<button
@@ -522,6 +456,59 @@
 				</button>
 			{/if}
 		</div>
+		<div class="">
+			<div
+				class="rounded-lg bg-white p-4 shadow-2xl ring-1 ring-gray-500 dark:bg-gray-800 dark:text-white">
+				<div class="mb-4 flex gap-2">
+					<div class="grow font-semibold">Transactions</div>
+					<button
+						class=""
+						type="button"
+						on:click={() => {
+							showTrans = false;
+						}}>
+						<!-- x-mark outline heroicons -->
+						<svg
+							class="h-6 w-6"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M6 18L18 6M6 6l12 12" />
+						</svg>
+					</button>
+				</div>
+				<div class="">
+					{#each trans as item, index (`trans-${index}`)}
+						<div class="mb-2 flex gap-2">
+							<button
+								class="flex items-center gap-2 text-green-500"
+								type="button"
+								on:click={() => {
+									tran = item;
+									showTrans = false;
+								}}>
+								<div class="max-w-lg grow truncate">
+									<span class="">
+										{new Date(item.date).toDateString()}
+									</span>
+									<span class="">
+										{item.name}
+									</span>
+									<span class="">
+										{item.desc}
+									</span>
+								</div>
+							</button>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
 	</div>
 	<div
 		class="flex flex-wrap items-center justify-center gap-4"
@@ -561,10 +548,7 @@
 			{/if}
 		</div>
 	</div>
-</div>
-
-<div class="container mx-auto p-4">
-	<div class="mb-4 flex flex-wrap items-center justify-center gap-2">
+	<div class="mb-4 mt-4 flex flex-wrap items-center justify-center gap-2">
 		<button
 			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 dark:shadow-green-800"
 			type="button"
@@ -605,7 +589,6 @@
 			</svg>
 		</button>
 	</div>
-
 	<div class="flex flex-wrap items-center justify-center gap-2">
 		<button
 			class="rounded-full bg-green-500 px-4 py-2 font-semibold text-white shadow-md shadow-green-200 transition duration-300 hover:bg-white hover:text-green-500 hover:shadow-none hover:ring-1 hover:ring-green-500 focus:bg-white focus:text-green-500 focus:shadow-none focus:ring-2 focus:ring-green-500 disabled:bg-transparent disabled:text-gray-500 disabled:shadow-none dark:shadow-green-800"
